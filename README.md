@@ -1,9 +1,8 @@
 # Personal CMS
 
-A modern, full-featured personal content management system built with Next.js, Supabase, and shadcn/ui. Perfect for managing personal projects, photography portfolios, and content.
+A modern, full-featured personal content management system built with Next.js 15, Supabase, and shadcn/ui. Perfect for managing artwork portfolios, photography collections, personal projects, and content.
 
 ## 📸 Preview
-
 
 ![Dashboard](public/photo2.png)
 
@@ -14,8 +13,27 @@ A modern, full-featured personal content management system built with Next.js, S
 ## 🚀 Features
 
 ### Core Features
+
 - **Authentication**: Secure password-based authentication with Supabase
 - **Dashboard**: Overview of all your content and statistics
+- **Artworks Management**: Comprehensive artwork portfolio management with:
+  - Single artwork upload with rich metadata
+  - **Bulk upload** for multiple artworks at once
+  - **Collections/Series** organization
+  - Dimensions, materials, and techniques tracking
+  - Exhibition history
+  - Pricing and availability management
+  - Status tracking (draft, published, archived)
+  - Featured artwork flagging
+  - Media gallery with multiple images per artwork
+  - Tags and categories for organization
+
+- **Collections View**: Dedicated interface for viewing and managing artwork collections:
+  - Browse all collections with artwork grids
+  - Search collections and artworks
+  - Collection statistics and overview
+  - Quick preview and management actions
+
 - **Projects Management**: Track and manage personal projects with:
   - AI-powered project content generation (optional questionnaire flow)
   - Multiple images per project
@@ -42,15 +60,16 @@ A modern, full-featured personal content management system built with Next.js, S
 - **Tags**: Organize content with tags
 
 ### Technical Features
-- **Next.js 15** with App Router
-- **Supabase** for database and authentication
+
+- **Next.js 15** with App Router and Server Actions
+- **Supabase** for database, authentication, and storage
 - **TypeScript** for type safety
 - **Tailwind CSS** for styling
 - **shadcn/ui** components
-- **Server Actions** for data mutations
 - **Row Level Security (RLS)** for data protection
 - **Responsive Design** - works on all devices
 - **Dark Mode** support
+- **Image Optimization** with Next.js Image component
 
 ## 📋 Prerequisites
 
@@ -67,7 +86,7 @@ Before you begin, ensure you have:
 
 ```bash
 git clone <your-repo-url>
-cd rashodkorala-cms
+cd bandumanamperi-cms
 ```
 
 ### 2. Install Dependencies
@@ -86,25 +105,35 @@ pnpm install
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
 OPENAI_API_KEY=your_openai_api_key_optional
+ANALYTICS_API_KEY=your_analytics_secret_key_optional
+ANALYTICS_USER_ID=your_supabase_user_id_optional
 ```
 
 ### 4. Set Up Database
 
 Run the following SQL scripts in your Supabase SQL Editor (in order):
 
-1. **Projects Table**: `database-schema.sql`
-2. **Photos Table**: `database-schema-photos.sql`
-3. **Add Alt Text** (if needed): `database-migration-add-alt-text.sql`
+1. **Artworks Table**: `database-schema-artworks.sql`
+2. **Projects Table**: `database-schema-projects.sql` (if using projects)
+3. **Photos Table**: `database-schema-photos.sql` (if using photos)
+4. **Analytics Table**: `database-schema-analytics.sql` (if using analytics)
+5. **Pages Table**: `database-schema-pages.sql` (if using pages)
+6. **Blogs Table**: `database-schema-blogs.sql` (if using blogs)
 
 See the detailed setup guides:
+- [Artworks Setup Guide](./app/docs/features/artworks)
 - [Projects Setup Guide](./PROJECTS_SETUP.md)
 - [Photos Setup Guide](./PHOTOS_SETUP.md)
 
 ### 5. Set Up Storage Buckets
 
-Create storage buckets in Supabase Dashboard → Storage:
+Create storage buckets in Supabase Dashboard → Storage or run the SQL scripts:
 
-1. **photos** bucket (public, for photo uploads)
+1. **artworks** bucket (public, for artwork images)
+   - Run: `database-storage-artworks-bucket.sql`
+   - Or create manually: public bucket, 10MB limit, image MIME types
+
+2. **photos** bucket (public, for photo uploads)
    - Set up policies as described in [Bulk Upload Setup](./BULK_UPLOAD_SETUP.md)
 
 ### 6. Run the Development Server
@@ -117,40 +146,73 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ## 📚 Documentation
 
+Complete documentation is available in the `/docs` section of the application. Access it at `/docs` after starting the server.
+
+### Quick Links
+
+- [Getting Started](/docs) - Installation and setup
+- [Artworks Management](/docs/features/artworks) - Complete artworks guide
+- [Collections](/docs/features/collections) - Collections management
+- [Database Setup](/docs/database/artworks) - Database schema
+- [Storage Setup](/docs/storage/artworks) - Storage bucket configuration
+
 ### Setup Guides
+
 - [Projects Setup](./PROJECTS_SETUP.md) - Setting up the projects feature
 - [Photos Setup](./PHOTOS_SETUP.md) - Setting up the photography feature
-- [Bulk Upload Setup](./BULK_UPLOAD_SETUP.md) - Bulk photo upload with metadata
+- [Bulk Upload Setup](./BULK_UPLOAD_SETUP.md) - Bulk artwork upload
 - [AI Photo Analysis Setup](./AI_PHOTO_ANALYSIS_SETUP.md) - AI-powered metadata generation
 - [AI Project Generation Setup](./AI_PROJECT_GENERATION_SETUP.md) - AI-powered project content generation
-
-### Database Schema
-
-The CMS uses the following main tables:
-
-- **projects**: Personal projects with images, status, progress, etc.
-- **photos**: Photography collection with metadata, categories, tags
-
-All tables include:
-- Row Level Security (RLS) enabled
-- User-specific data isolation
-- Automatic timestamps (created_at, updated_at)
+- [Analytics Setup](./ANALYTICS_SETUP.md) - Analytics tracking setup
 
 ## 🎯 Usage
 
-### Creating a Project
+### Artworks Management
+
+#### Creating a Single Artwork
+
+1. Navigate to **Artworks** in the sidebar
+2. Click **New Artwork**
+3. Fill in artwork details:
+   - **Basic Information**: Title, year, description, link
+   - **Categorization**: Category, medium, series/collection, tags
+   - **Dimensions**: Width, height, depth, unit
+   - **Additional Details**: Materials, technique, location, artist notes
+   - **Status & Settings**: Status, availability, price, currency, sort order
+   - **Media**: Upload thumbnail and additional gallery images
+   - **Exhibition History**: Add exhibition entries
+4. Click **Create Artwork**
+
+#### Bulk Upload Artworks
+
+1. Navigate to **Artworks** in the sidebar
+2. Click **Bulk Upload** button
+3. **Set Common Defaults** (optional):
+   - Category, Collection/Series, Status, Availability, Currency
+   - Click **Apply to All** to apply to all artworks
+4. **Select Images**: Click upload area or drag and drop multiple images
+5. **Customize Each Artwork**: Edit title, description, category, etc. for each artwork
+6. **Review and Upload**: See previews and upload progress
+7. Click **Upload X Artwork(s)** to process
+
+#### Managing Collections
+
+1. Navigate to **Collections** in the sidebar
+2. View all collections with their artworks
+3. **Search**: Use search bar to find collections or artworks
+4. **Preview**: Click preview on any artwork to see details
+5. **Manage**: Edit or delete artworks from collection view
+
+Collections are automatically created when you assign a **Series** name to artworks. Use consistent naming for proper grouping.
+
+### Projects Management
 
 #### Option 1: AI Questionnaire (Recommended)
 
 1. Navigate to **Projects** in the sidebar
 2. Click **New Project**
 3. Click **"Use AI Questionnaire (Optional)"** button
-4. Answer 5 steps of questions about your project:
-   - **Step 1**: Basic information (name, category, description)
-   - **Step 2**: Problem & solution
-   - **Step 3**: Features & functionality
-   - **Step 4**: Technical details
-   - **Step 5**: Links & resources
+4. Answer 5 steps of questions about your project
 5. Click **"Generate with AI"** - All fields will be automatically filled
 6. Review and adjust the generated content
 7. Upload images, add any missing details
@@ -160,18 +222,11 @@ All tables include:
 
 1. Navigate to **Projects** in the sidebar
 2. Click **New Project**
-3. Fill in project details manually:
-   - Title, subtitle, category
-   - Problem and solution descriptions
-   - Features and technology stack
-   - Upload multiple images
-   - Add links (live URL, GitHub, case study)
-   - Add roles
-   - Mark as featured
+3. Fill in project details manually
 4. (Optional) Use individual AI generation buttons for specific fields
 5. Click **Create Project**
 
-### Adding Photos
+### Photography Management
 
 #### Single Photo Upload
 
@@ -216,53 +271,66 @@ Generate complete project content using AI:
 
 1. Click **"Use AI Questionnaire"** when creating a new project
 2. Answer questions about your project
-3. AI generates all content fields:
-   - Title and subtitle
-   - Problem statement
-   - Solution description
-   - Features list
-   - Technology stack
-   - Roles
+3. AI generates all content fields
 4. Review and refine the generated content
 
-The AI uses GPT-4o-mini for cost-effective content generation. Individual fields can also be generated separately using the AI buttons next to each field.
+The AI uses GPT-4o-mini for cost-effective content generation.
 
 ## 🏗️ Project Structure
 
 ```
 ├── app/
-│   ├── api/              # API routes
-│   │   ├── analyze-photo/ # AI photo analysis endpoint
+│   ├── api/                    # API routes
+│   │   ├── artworks/           # Artworks API endpoints
+│   │   ├── analyze-photo/     # AI photo analysis
 │   │   ├── generate-project-content/ # AI project field generation
-│   │   └── generate-project-from-questions/ # AI questionnaire endpoint
-│   ├── auth/             # Authentication pages
-│   ├── protected/         # Protected routes (CMS)
-│   │   ├── dashboard/    # Dashboard page
-│   │   ├── projects/     # Projects management
-│   │   ├── photos/       # Photography management
-│   │   └── ...
-│   └── layout.tsx        # Root layout
+│   │   └── analytics/          # Analytics endpoints
+│   ├── auth/                   # Authentication pages
+│   ├── protected/              # Protected routes (CMS)
+│   │   ├── dashboard/         # Dashboard page
+│   │   ├── artworks/          # Artworks management
+│   │   ├── collections/       # Collections view
+│   │   ├── projects/          # Projects management
+│   │   ├── photos/            # Photography management
+│   │   ├── content/           # Content management
+│   │   ├── pages/             # Pages management
+│   │   ├── media/             # Media library
+│   │   ├── analytics/         # Analytics dashboard
+│   │   └── settings/          # Settings page
+│   ├── docs/                  # Documentation (MDX)
+│   └── layout.tsx             # Root layout
 ├── components/
-│   ├── photos/           # Photo-related components
-│   ├── projects/         # Project-related components
-│   │   └── project-questionnaire.tsx # AI questionnaire component
-│   └── ui/               # shadcn/ui components
+│   ├── artworks/              # Artwork-related components
+│   │   ├── index.tsx          # Artworks list
+│   │   ├── artwork-form.tsx   # Artwork form
+│   │   ├── artwork-bulk-upload.tsx # Bulk upload component
+│   │   ├── artwork-preview.tsx # Preview component
+│   │   ├── artwork-detail.tsx  # Detail view
+│   │   └── collections.tsx     # Collections view
+│   ├── projects/               # Project-related components
+│   ├── photos/                 # Photo-related components
+│   ├── ui/                     # shadcn/ui components
+│   └── docs/                   # Documentation components
 ├── lib/
-│   ├── actions/          # Server actions
-│   ├── supabase/         # Supabase client setup
-│   ├── types/            # TypeScript types
-│   └── utils/            # Utility functions
-├── database-schema*.sql   # Database migration files
+│   ├── actions/                # Server actions
+│   │   ├── artworks.ts         # Artwork actions
+│   │   ├── projects.ts         # Project actions
+│   │   └── ...
+│   ├── supabase/               # Supabase client setup
+│   ├── types/                  # TypeScript types
+│   └── utils/                  # Utility functions
+├── database-schema*.sql        # Database migration files
 └── README.md
 ```
 
 ## 🔒 Security
 
 - **Row Level Security (RLS)**: All database tables have RLS enabled
-- **User Isolation**: Users can only access their own data
+- **User Isolation**: Users can only access their own data (where applicable)
 - **Authentication Required**: All CMS routes are protected
 - **Environment Variables**: Sensitive keys stored in `.env.local`
 - **No Indexing**: Site is configured to not be indexed by search engines
+- **Public/Private Access**: Published content is publicly accessible, drafts are private
 
 ## 🎨 Customization
 
@@ -281,6 +349,7 @@ The project uses Tailwind CSS and shadcn/ui. To customize:
 3. Create server actions in `lib/actions/`
 4. Build UI components in `components/`
 5. Add routes in `app/protected/`
+6. Update documentation in `app/docs/`
 
 ## 🚀 Deployment
 
@@ -292,16 +361,20 @@ The project uses Tailwind CSS and shadcn/ui. To customize:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
    - `OPENAI_API_KEY` (optional)
+   - `ANALYTICS_API_KEY` (optional)
+   - `ANALYTICS_USER_ID` (optional)
 4. Deploy!
 
 ### Environment Variables
 
-Required:
+**Required:**
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
-Optional:
+**Optional:**
 - `OPENAI_API_KEY` (for AI photo analysis and project content generation)
+- `ANALYTICS_API_KEY` (for analytics tracking)
+- `ANALYTICS_USER_ID` (for analytics user identification)
 
 ## 📝 Scripts
 
@@ -318,6 +391,28 @@ pnpm start
 # Lint code
 pnpm lint
 ```
+
+## 🔌 API Endpoints
+
+### Artworks
+
+- `GET /api/artworks` - Get all published artworks
+- `GET /api/artworks?status=draft` - Filter by status
+- `GET /api/artworks?category=Painting` - Filter by category
+- `GET /api/artworks?series=Body%20Works` - Filter by collection
+- `GET /api/artworks?featured=true` - Get featured artworks
+- `GET /api/artworks/[slug]` - Get single artwork by slug
+
+### Projects
+
+- `GET /api/projects` - Get all published projects
+- `GET /api/projects?category=startup` - Filter by category
+- `GET /api/projects?featured=true` - Get featured projects
+
+### Analytics
+
+- `POST /api/analytics/track` - Track page views
+- `GET /api/analytics/summary` - Get analytics summary
 
 ## 🤝 Contributing
 
@@ -337,14 +432,24 @@ This project is open source and available under the [MIT License](LICENSE).
 ### Database Errors
 
 - Ensure RLS policies are set up correctly
-- Check that user_id is properly set in all queries
-- Verify table schemas match the SQL files
+- Check that table schemas match the SQL files
+- Verify all required indexes are created
+- Check Supabase project is active
 
 ### Storage Errors
 
-- Verify storage buckets exist
-- Check bucket policies allow uploads
-- Ensure bucket is set to public (for photos)
+- Verify storage buckets exist and are named correctly
+- Check bucket policies allow uploads (authenticated users)
+- Ensure bucket is set to public (for public access)
+- Verify file size limits (default 10MB)
+- Check MIME type restrictions
+
+### Artworks Issues
+
+- **Bulk Upload Fails**: Check storage bucket exists and policies are set
+- **Collections Not Appearing**: Ensure artworks have Series names assigned
+- **Images Not Loading**: Verify storage bucket is public and URLs are correct
+- **Slug Conflicts**: Auto-generated slugs handle conflicts automatically
 
 ### AI Features Not Working
 
@@ -359,6 +464,14 @@ This project is open source and available under the [MIT License](LICENSE).
 - Verify Supabase credentials in `.env.local`
 - Check Supabase project is active
 - Ensure email confirmation is configured (if required)
+- Verify RLS policies allow authenticated access
+
+### Image Optimization Issues
+
+- Ensure Next.js Image component is used (not `<img>`)
+- Check `next.config.ts` for image domain configuration
+- Verify external image URLs are allowed in Next.js config
+- For blob/data URLs, use `unoptimized` prop
 
 ## 📚 Resources
 
@@ -366,6 +479,7 @@ This project is open source and available under the [MIT License](LICENSE).
 - [Supabase Documentation](https://supabase.com/docs)
 - [shadcn/ui Documentation](https://ui.shadcn.com)
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
+- [TypeScript Documentation](https://www.typescriptlang.org/docs)
 
 ## 🙏 Acknowledgments
 
@@ -377,9 +491,40 @@ This project is open source and available under the [MIT License](LICENSE).
 ## 📧 Support
 
 For issues and questions:
-1. Check the documentation files in the repository
-2. Review the setup guides
-3. Open an issue on GitHub
+
+1. Check the documentation in `/docs` section
+2. Review the setup guides in the repository
+3. Check existing GitHub issues
+4. Open a new issue on GitHub
+
+## 🎯 Key Features Summary
+
+### Artworks
+- ✅ Single and bulk upload
+- ✅ Collections/Series organization
+- ✅ Rich metadata (dimensions, materials, techniques)
+- ✅ Exhibition history tracking
+- ✅ Pricing and availability management
+- ✅ Media gallery support
+- ✅ Status management (draft/published/archived)
+
+### Collections
+- ✅ Dedicated collections view
+- ✅ Search and filter
+- ✅ Collection statistics
+- ✅ Quick preview and management
+
+### Projects
+- ✅ AI-powered content generation
+- ✅ Multiple images per project
+- ✅ Technology stack tracking
+- ✅ Featured projects
+
+### Photography
+- ✅ Bulk upload with metadata
+- ✅ AI-powered metadata generation
+- ✅ Camera settings tracking
+- ✅ Category organization
 
 ---
 
