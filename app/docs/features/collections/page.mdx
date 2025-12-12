@@ -1,0 +1,237 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Collections Management
+
+Complete guide to viewing and managing your artwork collections.
+
+## Overview
+
+Collections (also called Series) allow you to organize related artworks into groups. The Collections view provides a dedicated interface to browse, search, and manage your artwork collections.
+
+## What are Collections?
+
+Collections are groups of artworks that share a common **Series** name. When you assign the same Series name to multiple artworks, they automatically form a collection.
+
+### Collection Benefits
+
+- **Organization**: Group related artworks by theme, series, or exhibition
+- **Easy Browsing**: View all artworks in a collection at once
+- **Portfolio Display**: Organize your portfolio for frontend display
+- **Quick Navigation**: Jump between collections easily
+
+## Accessing Collections
+
+1. Navigate to **Collections** in the sidebar
+2. View all collections with their artworks
+3. Each collection is displayed as a card with:
+   - Collection name
+   - Number of artworks
+   - Published/draft breakdown
+   - Grid of artwork thumbnails
+
+## Collection View Features
+
+### Stats Overview
+
+The Collections page displays key statistics:
+
+- **Total Collections**: Number of unique collections
+- **Total Artworks**: Total artworks across all collections
+- **Published**: Number of published artworks
+- **Drafts**: Number of draft artworks
+
+### Collection Cards
+
+Each collection is shown as a card containing:
+
+- **Collection Name**: The Series name
+- **Artwork Count**: Number of artworks in the collection
+- **Status Breakdown**: Published and draft counts
+- **Artwork Grid**: Visual grid of all artworks in the collection
+
+### Artwork Cards
+
+Within each collection, artworks are displayed as cards with:
+
+- **Thumbnail**: Artwork image preview
+- **Title**: Artwork title
+- **Status Badge**: Published, Draft, or Archived
+- **Category Badge**: Artwork category
+- **Quick Actions**: Preview and delete options
+
+## Searching Collections
+
+Use the search bar to find collections or artworks:
+
+1. Type in the search box
+2. Search matches:
+   - Collection names
+   - Artwork titles
+   - Artwork descriptions
+   - Artwork categories
+3. Results update in real-time
+4. Clear search to show all collections
+
+## Collection Actions
+
+### Viewing Artworks
+
+- **Hover** over artwork cards to see action menu
+- **Click Preview** to see full artwork details
+- **Click Delete** to remove artwork from collection
+
+### Navigation
+
+- **All Artworks**: Link to full artworks page
+- **Refresh**: Refresh data from database
+
+## Creating Collections
+
+Collections are created automatically when you assign Series names to artworks. See the [Artworks documentation](/docs/features/artworks#collections) for details on:
+
+- Creating collections during single upload
+- Creating collections during bulk upload
+- Assigning artworks to collections when editing
+
+## Managing Collections
+
+### Adding Artworks to Collections
+
+1. **During Upload**:
+   - Set Series name in artwork form
+   - Or use Common Defaults in bulk upload
+
+2. **When Editing**:
+   - Edit artwork
+   - Set or change Series field
+   - Artwork moves to appropriate collection
+
+### Removing Artworks from Collections
+
+1. **Edit Artwork**:
+   - Clear the Series field
+   - Artwork is removed from collection
+   - Artwork remains in All Artworks view
+
+2. **Delete Artwork**:
+   - Delete artwork from collection view
+   - Artwork is removed from collection and database
+
+### Renaming Collections
+
+To rename a collection:
+
+1. Edit all artworks in the collection
+2. Change Series name to new name
+3. All artworks move to new collection
+4. Old collection disappears when empty
+
+<Alert>
+  <AlertTitle>Collection Names</AlertTitle>
+  <AlertDescription>
+    Collection names are case-sensitive. "Body Works" and "body works" are different collections. Use consistent naming conventions to avoid creating duplicate collections.
+  </AlertDescription>
+</Alert>
+
+## Collection Organization Tips
+
+### Naming Conventions
+
+- **Be Consistent**: Use the same format for all collection names
+- **Be Descriptive**: Use clear, meaningful names
+- **Avoid Duplicates**: Check existing collections before creating new ones
+
+### Organization Strategies
+
+1. **By Theme**: Group artworks by subject matter
+   - Example: "Urban Landscapes", "Portraits", "Abstract Works"
+
+2. **By Series**: Group artworks from the same series
+   - Example: "Body Works Series 2023", "Nature Studies 2024"
+
+3. **By Exhibition**: Group artworks shown together
+   - Example: "Gallery Show 2023", "Solo Exhibition 2024"
+
+4. **By Medium**: Group artworks by technique
+   - Example: "Oil Paintings", "Digital Works", "Mixed Media"
+
+## Collection Statistics
+
+Each collection displays:
+
+- **Total Artworks**: Number of artworks in collection
+- **Published Count**: Number of published artworks
+- **Draft Count**: Number of draft artworks
+
+Use these stats to:
+- Track collection completeness
+- Identify collections needing publication
+- Balance published vs draft content
+
+## Frontend Integration
+
+Collections can be used to organize artworks for frontend display:
+
+### API Endpoints
+
+- **All Collections**: Get unique collection names via `/api/artworks?series=...`
+- **Collection Artworks**: Filter artworks by collection name
+- **Featured Collections**: Display featured artworks from collections
+
+### Display Options
+
+1. **Collection Pages**: Create pages for each collection
+2. **Collection Galleries**: Display collection grids on homepage
+3. **Collection Navigation**: Add collection filters to artwork pages
+
+<Alert variant="info">
+  <AlertTitle>API Usage</AlertTitle>
+  <AlertDescription>
+    Use the artworks API with series filter to fetch artworks by collection. Example: <code>/api/artworks?series=Body%20Works</code> returns all artworks in the "Body Works" collection.
+  </AlertDescription>
+</Alert>
+
+## Best Practices
+
+### Collection Management
+
+1. **Plan Collections**: Decide on collection structure before uploading
+2. **Use Common Defaults**: Set collection during bulk upload
+3. **Review Regularly**: Check Collections view to ensure organization
+4. **Consolidate**: Merge duplicate collections with same name variations
+
+### Workflow Tips
+
+1. **Bulk Upload**: Use bulk upload with collection defaults for new series
+2. **Edit in Batches**: Edit multiple artworks to assign to collections
+3. **Search First**: Search existing collections before creating new ones
+4. **Use Tags**: Combine collections with tags for flexible organization
+
+## Troubleshooting
+
+### Collections Not Appearing
+
+- **Check Series Field**: Ensure artworks have Series names assigned
+- **Refresh Page**: Collections update when data refreshes
+- **Check Filters**: Clear search query to see all collections
+
+### Artworks Not Grouping
+
+- **Exact Match**: Series names must match exactly (case-sensitive)
+- **Spaces**: Check for extra spaces in Series names
+- **Special Characters**: Verify Series names don't have hidden characters
+
+### Missing Artworks in Collection
+
+- **Status Filter**: Check if artworks are filtered by status
+- **Search Query**: Clear search to see all artworks
+- **Series Name**: Verify artwork has correct Series name
+
+## Related Documentation
+
+- [Artworks Management](/docs/features/artworks) - Complete artworks guide
+- [Bulk Upload](/docs/features/artworks#bulk-upload) - Upload multiple artworks
+- [Database Schema](/docs/database/artworks) - Artworks database structure
+- [Storage Setup](/docs/storage/artworks) - Artworks storage bucket setup
+

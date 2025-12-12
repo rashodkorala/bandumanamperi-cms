@@ -1,0 +1,346 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Artworks Management
+
+Complete guide to managing your artwork collection in the CMS.
+
+## Overview
+
+The Artworks feature allows you to manage your artwork portfolio with:
+
+- **Single artwork upload** with comprehensive metadata
+- **Bulk upload** for multiple artworks at once
+- **Collections/Series** organization
+- **Rich metadata** including dimensions, materials, techniques
+- **Exhibition history** tracking
+- **Pricing and availability** management
+- **Status management** (draft, published, archived)
+- **Featured artwork** flagging
+- **Media gallery** with multiple images per artwork
+
+## Creating an Artwork
+
+### Single Artwork Upload
+
+1. Navigate to **Artworks** in the sidebar
+2. Click **New Artwork** button
+3. Fill in artwork details:
+
+   **Basic Information**
+   - **Title** * (required)
+   - **Year**: Creation year
+   - **Description**: Detailed artwork description
+   - **Link**: External link (optional)
+
+   **Categorization**
+   - **Category**: Artwork category (e.g., Painting, Sculpture)
+   - **Medium**: Medium used (e.g., Oil on Canvas)
+   - **Series**: Collection/Series name (see [Collections](#collections))
+   - **Tags**: Multiple tags for organization
+
+   **Dimensions**
+   - **Width, Height, Depth**: Artwork dimensions
+   - **Unit**: Measurement unit (cm, m, in, ft)
+
+   **Additional Details**
+   - **Materials**: List of materials used
+   - **Technique**: Artistic technique or method
+   - **Location**: Current location of artwork
+   - **Artist Notes**: Personal notes about the artwork
+
+   **Status & Settings**
+   - **Status**: draft, published, or archived
+   - **Availability**: available, sold, on_loan, private_collection, nfs
+   - **Price**: Artwork price (optional)
+   - **Currency**: USD, EUR, or GBP
+   - **Sort Order**: Display order
+   - **Featured**: Mark as featured artwork
+   - **Slug**: URL-friendly identifier (auto-generated from title)
+
+   **Media**
+   - **Thumbnail**: Main artwork image
+   - **Media Files**: Additional images for gallery
+
+   **Exhibition History**
+   - Add exhibition entries with:
+     - Exhibition name
+     - Location
+     - Date
+
+4. Click **Create Artwork**
+
+## Bulk Upload
+
+Upload multiple artworks at once with a streamlined workflow:
+
+### Using Bulk Upload
+
+1. Navigate to **Artworks** in the sidebar
+2. Click **Bulk Upload** button
+3. **Set Common Defaults** (optional):
+   - Category
+   - Collection/Series
+   - Status
+   - Availability
+   - Currency
+   - Click **Apply to All** to apply to all artworks
+
+4. **Select Images**:
+   - Click the upload area or drag and drop
+   - Select multiple image files
+   - Each image becomes an artwork entry
+
+5. **Customize Each Artwork**:
+   - Edit title, description, year
+   - Set category, medium, collection
+   - Adjust status and other fields
+   - Each artwork can be customized individually
+
+6. **Review and Upload**:
+   - See previews of all artworks
+   - Check upload progress for each item
+   - Click **Upload X Artwork(s)** to process
+
+### Bulk Upload Features
+
+- **Common Defaults**: Set default values for all artworks
+- **Per-Artwork Customization**: Override defaults for individual artworks
+- **Auto-Generated Slugs**: Slugs automatically generated from titles
+- **Progress Tracking**: See upload progress for each artwork
+- **Error Handling**: Detailed error messages for failed uploads
+- **Collection Assignment**: Assign artworks to collections during upload
+
+<Alert variant="info">
+  <AlertTitle>Bulk Upload Tips</AlertTitle>
+  <AlertDescription>
+    - Use common defaults to quickly set category, status, and collection for all artworks
+    - File names are used as default titles (you can edit them)
+    - Each image is uploaded as both thumbnail and media
+    - Uploads happen sequentially with progress tracking
+  </AlertDescription>
+</Alert>
+
+## Collections
+
+Collections (also called Series) allow you to group related artworks together.
+
+### Creating Collections
+
+Collections are created automatically when you assign a **Series** name to artworks:
+
+1. **During Single Upload**:
+   - Enter a Series name in the artwork form
+   - The collection is created automatically
+
+2. **During Bulk Upload**:
+   - Set a Collection/Series name in Common Defaults
+   - Click **Apply to All** to assign all artworks to the collection
+   - Or customize individual artworks with different collections
+
+3. **When Editing**:
+   - Edit any artwork and set/change the Series field
+   - The artwork will move to the appropriate collection
+
+### Viewing Collections
+
+1. Navigate to **Collections** in the sidebar
+2. View all collections with their artworks
+3. Each collection shows:
+   - Collection name
+   - Number of artworks
+   - Published/draft breakdown
+   - Grid of artwork thumbnails
+
+### Collection Features
+
+- **Automatic Grouping**: Artworks with the same Series name are grouped together
+- **Search**: Search collections and artworks by name, title, or description
+- **Stats Overview**: See total collections, artworks, published, and drafts
+- **Quick Actions**: Preview and delete artworks from collection view
+- **Navigation**: Link to full artworks page
+
+<Alert>
+  <AlertTitle>Collection Names</AlertTitle>
+  <AlertDescription>
+    Collection names are case-sensitive. Use consistent naming (e.g., "Body Works" vs "body works" are different collections). The bulk upload interface shows existing collections as suggestions when typing.
+  </AlertDescription>
+</Alert>
+
+## Editing Artworks
+
+1. Click the **Edit** button on any artwork
+2. Modify any fields
+3. Replace or add images
+4. Update exhibition history
+5. Click **Update Artwork**
+
+## Artwork Status
+
+Artworks can have the following statuses:
+
+- **Draft**: Work in progress, not visible publicly
+- **Published**: Live and visible on your website
+- **Archived**: Hidden from public view
+
+## Artwork Availability
+
+Track the availability status of your artworks:
+
+- **Available**: Artwork is available
+- **Sold**: Artwork has been sold
+- **On Loan**: Artwork is on loan
+- **Private Collection**: In a private collection
+- **Not For Sale (NFS)**: Not available for purchase
+
+## Featured Artworks
+
+Mark artworks as featured to highlight them on your frontend website. Featured artworks typically appear in special sections or on the homepage.
+
+## Artwork Fields
+
+### Required Fields
+- **Title**: Artwork name
+
+### Basic Information
+- **Year**: Creation year
+- **Description**: Detailed description
+- **Link**: External link
+
+### Categorization
+- **Category**: Artwork category
+- **Medium**: Medium used
+- **Series**: Collection/Series name
+- **Tags**: Array of tags
+
+### Dimensions
+- **Width, Height, Depth**: Artwork dimensions
+- **Unit**: Measurement unit (cm, m, in, ft)
+
+### Additional Details
+- **Materials**: List of materials
+- **Technique**: Artistic technique
+- **Location**: Current location
+- **Artist Notes**: Personal notes
+
+### Status & Settings
+- **Status**: draft, published, archived
+- **Availability**: available, sold, on_loan, private_collection, nfs
+- **Price**: Artwork price
+- **Currency**: USD, EUR, GBP
+- **Sort Order**: Display order
+- **Slug**: URL-friendly identifier
+
+### Media
+- **Thumbnail Path**: Main artwork image URL
+- **Media**: Array of additional image URLs
+
+### Exhibition History
+- Array of exhibition entries:
+  - **Name**: Exhibition name
+  - **Location**: Exhibition location
+  - **Date**: Exhibition date
+
+## Duplicating Artworks
+
+1. Click the **⋮** menu on any artwork
+2. Select **Duplicate**
+3. A copy is created with:
+   - Title appended with "(Copy)"
+   - Slug appended with "-copy"
+   - Status set to "draft"
+   - Featured flag removed
+   - All other fields copied
+
+## Filtering and Sorting
+
+### Filters
+
+- **Status Filter**: Filter by draft, published, or archived
+- **Category Filter**: Filter by category
+- **Search**: Search artworks by title, description, or category
+
+### Sorting
+
+Artworks are sorted by:
+1. **Sort Order** (ascending)
+2. **Updated At** (descending)
+
+## Media Management
+
+### Uploading Images
+
+- Supported formats: JPEG, PNG, WEBP, GIF
+- Maximum file size: 10MB per image
+- Images are uploaded to Supabase Storage (`artworks` bucket)
+- Thumbnail is used as the main display image
+- Media array stores additional images
+
+### Image Organization
+
+- **Thumbnail**: Main artwork image (shown in lists)
+- **Media**: Additional images for gallery view
+- Images can be full URLs or Supabase Storage paths
+
+## API Integration
+
+Artworks can be fetched via API for frontend display:
+
+- **All Artworks**: `/api/artworks`
+- **Single Artwork**: `/api/artworks/[slug]`
+- **Filter by Status**: `/api/artworks?status=published`
+- **Filter by Category**: `/api/artworks?category=Painting`
+- **Filter by Series**: `/api/artworks?series=Body%20Works`
+- **Featured Only**: `/api/artworks?featured=true`
+
+<Alert variant="info">
+  <AlertTitle>Frontend Integration</AlertTitle>
+  <AlertDescription>
+    Use the API endpoints to display artworks on your personal website. The artwork data includes all metadata, media URLs, and exhibition history for rich display options.
+  </AlertDescription>
+</Alert>
+
+## Best Practices
+
+### Organizing Artworks
+
+1. **Use Collections**: Group related artworks using Series/Collection names
+2. **Consistent Categories**: Use consistent category names for filtering
+3. **Tags**: Add multiple tags for flexible searching
+4. **Sort Order**: Set sort orders to control display sequence
+
+### Bulk Upload Workflow
+
+1. Prepare images with descriptive filenames
+2. Set common defaults (category, collection, status)
+3. Upload all images at once
+4. Customize individual artworks as needed
+5. Review before final upload
+
+### Collection Management
+
+1. Use descriptive collection names
+2. Keep collection names consistent
+3. Review collections regularly in the Collections view
+4. Use collections to organize by theme, series, or exhibition
+
+## Troubleshooting
+
+### Upload Issues
+
+- **Storage Errors**: Verify the `artworks` storage bucket exists and has proper policies
+- **Authentication**: Ensure you're logged in before uploading
+- **File Size**: Check file sizes (recommended max 10MB per file)
+
+### Collection Issues
+
+- **Artworks Not Grouping**: Check that Series names match exactly (case-sensitive)
+- **Missing Collections**: Ensure artworks have Series names assigned
+- **Search Not Working**: Try refreshing the page or clearing search query
+
+### General Issues
+
+- **Slug Conflicts**: Auto-generated slugs handle conflicts automatically
+- **Missing Images**: Verify storage bucket policies allow public read access
+- **Status Changes**: Use the status filter to find artworks in different states
+

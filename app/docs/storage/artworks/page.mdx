@@ -1,0 +1,228 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Artworks Storage Bucket
+
+Set up Supabase Storage for artwork image uploads.
+
+## Overview
+
+The artworks storage bucket stores uploaded image files for your artwork collection. It's configured as a public bucket so images can be accessed via public URLs.
+
+## Create Bucket via SQL
+
+Run this SQL script in your Supabase SQL Editor:
+
+<CodeBlock language="sql" filename="database-storage-artworks-bucket.sql">
+{`-- Create artworks bucket
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'artworks',
+  'artworks',
+  true, -- Public bucket
+  10485760, -- 10MB file size limit
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can upload artworks" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own artworks" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own artworks" ON storage.objects;
+DROP POLICY IF EXISTS "Public can view artworks" ON storage.objects;
+
+-- Create storage policies
+CREATE POLICY "Users can upload artworks"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'artworks');
+
+CREATE POLICY "Users can update their own artworks"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'artworks')
+WITH CHECK (bucket_id = 'artworks');
+
+CREATE POLICY "Users can delete their own artworks"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'artworks');
+
+CREATE POLICY "Public can view artworks"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'artworks');`}
+</CodeBlock>
+
+## Create Bucket Manually
+
+Alternatively, create the bucket in Supabase Dashboard:
+
+1. Go to **Supabase Dashboard → Storage**
+2. Click **"Create a new bucket"**
+3. Name it `artworks`
+4. Make it **Public**
+5. Set file size limit to **10MB**
+6. Run the SQL policies above to set up access
+
+## Bucket Configuration
+
+### Settings
+
+- **Name**: `artworks`
+- **Public**: Yes (for public URL access)
+- **File Size Limit**: 10MB per file
+- **Allowed MIME Types**: 
+  - `image/jpeg`
+  - `image/png`
+  - `image/webp`
+  - `image/gif`
+
+### Folder Structure
+
+The bucket uses the following folder structure:
+
+```
+artworks/
+├── thumbnails/
+│   └── {timestamp}-{unique-name}.{ext}
+└── media/
+    └── {timestamp}-{unique-name}.{ext}
+```
+
+- **thumbnails/**: Main artwork images
+- **media/**: Additional gallery images
+
+## Storage Policies
+
+### Upload Policy
+
+Authenticated users can upload images to the `artworks` bucket.
+
+### Update Policy
+
+Authenticated users can update their uploaded images.
+
+### Delete Policy
+
+Authenticated users can delete their uploaded images.
+
+### Public Read Policy
+
+Anyone can view images in the `artworks` bucket (public access).
+
+## File Naming
+
+Files are automatically named with:
+
+- **Timestamp**: Current timestamp
+- **Unique ID**: Random string
+- **Original Extension**: Preserved from upload
+
+Example: `thumbnails/1704067200000-abc123def456.jpg`
+
+## URL Access
+
+### Public URLs
+
+Images are accessible via public URLs:
+
+```
+https://{project-ref}.supabase.co/storage/v1/object/public/artworks/{path}
+```
+
+### Getting URLs in Code
+
+```typescript
+const { data } = supabase.storage
+  .from('artworks')
+  .getPublicUrl('thumbnails/image.jpg')
+
+const publicUrl = data.publicUrl
+```
+
+## Upload Process
+
+### Single Upload
+
+1. User selects image file
+2. File is uploaded to `thumbnails/` or `media/` folder
+3. Unique filename is generated
+4. Public URL is returned
+5. URL is stored in database
+
+### Bulk Upload
+
+1. Multiple files are selected
+2. Each file is uploaded sequentially
+3. Progress is tracked per file
+4. Public URLs are collected
+5. URLs are stored in database
+
+## File Management
+
+### Uploading
+
+- Files are uploaded via Supabase Storage client
+- Authentication is required for uploads
+- Files are validated before upload
+
+### Deleting
+
+- Files can be deleted from storage
+- Database references should be updated
+- Orphaned files can be cleaned up manually
+
+### Updating
+
+- Files can be replaced
+- Old files should be deleted to save space
+- New URLs are stored in database
+
+## Best Practices
+
+### File Organization
+
+1. **Use Folders**: Organize by type (thumbnails, media)
+2. **Unique Names**: Prevent filename conflicts
+3. **Clean Up**: Remove unused files periodically
+
+### Performance
+
+1. **Optimize Images**: Compress before upload
+2. **Reasonable Sizes**: Keep files under 10MB
+3. **CDN**: Supabase Storage uses CDN for fast delivery
+
+### Security
+
+1. **Public Access**: Only images should be public
+2. **Authentication**: Require auth for uploads
+3. **Validation**: Validate file types and sizes
+
+## Troubleshooting
+
+### Upload Fails
+
+- **Check Policies**: Verify storage policies are set
+- **Check Auth**: Ensure user is authenticated
+- **Check Size**: Verify file is under 10MB
+- **Check Type**: Verify file type is allowed
+
+### Images Not Loading
+
+- **Check URLs**: Verify public URLs are correct
+- **Check Bucket**: Ensure bucket is public
+- **Check Policies**: Verify public read policy exists
+
+### Storage Errors
+
+- **RLS Errors**: Check Row Level Security policies
+- **Permission Errors**: Verify user has upload permissions
+- **Bucket Errors**: Ensure bucket exists and is configured
+
+## Related Documentation
+
+- [Artworks Feature](/docs/features/artworks) - Complete artworks guide
+- [Database Schema](/docs/database/artworks) - Artworks database structure
+- [Bulk Upload](/docs/features/artworks#bulk-upload) - Bulk upload guide
+

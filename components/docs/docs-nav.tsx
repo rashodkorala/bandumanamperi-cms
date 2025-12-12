@@ -27,6 +27,10 @@ const docsSections = [
     title: "Database",
     items: [
       {
+        title: "Artworks Table",
+        href: "/docs/database/artworks",
+      },
+      {
         title: "Projects Table",
         href: "/docs/database/projects",
       },
@@ -48,6 +52,10 @@ const docsSections = [
     title: "Storage",
     items: [
       {
+        title: "Artworks Bucket",
+        href: "/docs/storage/artworks",
+      },
+      {
         title: "Photos Bucket",
         href: "/docs/storage/photos",
       },
@@ -60,6 +68,14 @@ const docsSections = [
   {
     title: "Features",
     items: [
+      {
+        title: "Artworks",
+        href: "/docs/features/artworks",
+      },
+      {
+        title: "Collections",
+        href: "/docs/features/collections",
+      },
       {
         title: "Projects",
         href: "/docs/features/projects",
