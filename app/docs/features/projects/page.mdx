@@ -1,0 +1,228 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Projects Management
+
+Complete guide to managing projects in your Personal CMS.
+
+## Overview
+
+The Projects feature allows you to manage your personal projects with:
+
+- **AI-powered content generation** (optional questionnaire flow)
+- Multiple images per project
+- Cover photo selection
+- Status tracking (draft, published, archived)
+- Problem and solution descriptions
+- Features and technology stack
+- Roles tracking
+- Links (live URL, GitHub, case study)
+- Featured project flag
+
+## Creating a Project
+
+### Method 1: AI Questionnaire (Recommended)
+
+The fastest way to create a project with comprehensive content:
+
+1. Navigate to **Projects** in the sidebar
+2. Click **New Project** button
+3. Click **"Use AI Questionnaire (Optional)"** button in the form header
+4. Complete the 5-step questionnaire:
+   
+   **Step 1: Basic Information**
+   - Project name (required)
+   - Category (startup, client, personal, school)
+   - One-line description (required)
+   
+   **Step 2: Problem & Solution**
+   - What problem does it solve?
+   - Who is your target audience?
+   - What makes your solution unique?
+   
+   **Step 3: Features & Functionality**
+   - Main features
+   - What can users do with it?
+   
+   **Step 4: Technical Details**
+   - Technologies used
+   - Frameworks and tools
+   - Your role in the project
+   
+   **Step 5: Links & Resources**
+   - Live website URL (optional)
+   - GitHub repository (optional)
+   - Case study URL (optional)
+
+5. Click **"Generate with AI"** - All fields will be automatically populated
+6. Review and refine the generated content
+7. Upload cover image and gallery images
+8. Adjust any fields as needed
+9. Click **Create Project**
+
+<Alert variant="info">
+  <AlertTitle>AI Generation</AlertTitle>
+  <AlertDescription>
+    The AI uses GPT-4o-mini to generate professional, portfolio-ready content based on your answers. All generated content can be edited before saving.
+  </AlertDescription>
+</Alert>
+
+### Method 2: Manual Entry
+
+Create projects manually with full control:
+
+1. Navigate to **Projects** in the sidebar
+2. Click **New Project** button
+3. Fill in project details:
+   - **Title**: Project name
+   - **Subtitle**: One-line description
+   - **Category**: startup, client, personal, or school
+   - **Status**: draft, published, or archived
+   - **Problem**: What problem does it solve?
+   - **Solution**: How does it solve the problem?
+   - **Features**: Key features (array)
+   - **Tech**: Technology stack (array)
+   - **Roles**: Your roles in the project (array)
+4. Upload images:
+   - Click **Select Cover Image** for the main image
+   - Click **Select Gallery Images** for additional images
+   - Images are uploaded to Supabase Storage
+5. Add links:
+   - **Live URL**: Live project website
+   - **GitHub URL**: Repository link
+   - **Case Study URL**: Detailed write-up or case study
+6. Mark as **Featured** if desired
+7. Click **Create Project**
+
+### Method 3: Hybrid Approach
+
+Combine manual entry with AI assistance:
+
+1. Start with manual entry (Method 2)
+2. Use individual **AI Generate** buttons next to specific fields:
+   - Generate subtitle
+   - Generate problem statement
+   - Generate solution description
+   - Generate features list
+   - Generate tech stack
+3. Review and refine each generated field
+4. Complete the rest manually
+5. Click **Create Project**
+
+## Editing a Project
+
+1. Click the **Edit** button on any project
+2. Modify any fields
+3. Add or remove images
+4. Change the cover image
+5. Click **Update Project**
+
+## Managing Images
+
+### Uploading Images
+
+- Click **Select Images** to choose multiple files
+- Supported formats: JPEG, PNG, WEBP, GIF
+- Maximum file size: 10MB per image
+- Images are automatically uploaded to Supabase Storage
+
+### Setting Cover Image
+
+- Click **Set Cover** on any uploaded image
+- The cover image is highlighted with a border
+- Only one cover image per project
+
+### Removing Images
+
+- Click the **X** button on any image preview
+- Images are removed from the project but remain in storage
+
+## AI Content Generation
+
+### Questionnaire Flow
+
+The AI questionnaire is an optional feature that helps you quickly generate comprehensive project content. It's perfect for:
+
+- Creating multiple projects quickly
+- Getting professional, portfolio-ready descriptions
+- Ensuring consistency across projects
+- Saving time on content writing
+
+### Individual Field Generation
+
+You can also generate individual fields using the AI buttons:
+
+- **Subtitle**: Generate a compelling one-line description
+- **Problem**: Create a problem statement
+- **Solution**: Write a solution description
+- **Features**: Generate a list of key features
+- **Tech Stack**: Suggest technologies based on project description
+
+### How It Works
+
+1. **Questionnaire**: Answer questions about your project
+2. **AI Processing**: GPT-4o-mini analyzes your answers
+3. **Content Generation**: All fields are generated at once
+4. **Review & Edit**: Refine the generated content
+5. **Save**: Create your project
+
+<Alert>
+  <AlertTitle>OpenAI API Key Required</AlertTitle>
+  <AlertDescription>
+    To use AI features, you need an OpenAI API key set in your <code>.env.local</code> file. The questionnaire uses GPT-4o-mini for cost-effective generation.
+  </AlertDescription>
+</Alert>
+
+## Project Status
+
+Projects can have the following statuses:
+
+- **Draft**: Work in progress, not visible publicly
+- **Published**: Live and visible on your website
+- **Archived**: Hidden from public view
+
+## Project Categories
+
+- **Startup**: Your startup projects
+- **Client**: Client work
+- **Personal**: Personal projects
+- **School**: Academic projects
+
+## Featured Projects
+
+Mark projects as featured to highlight them on your frontend website. Featured projects typically appear in a special section or homepage.
+
+## Project Fields
+
+### Required Fields
+- **Title**: Project name
+- **Slug**: URL-friendly identifier (auto-generated from title)
+- **Status**: draft, published, or archived
+
+### Content Fields
+- **Subtitle**: One-line description
+- **Problem**: Problem statement (2-3 sentences)
+- **Solution**: Solution description (2-3 sentences)
+- **Features**: Array of key features
+- **Tech**: Array of technologies used
+- **Roles**: Array of your roles in the project
+
+### Media & Links
+- **Cover Image**: Main project image
+- **Gallery Images**: Additional project images
+- **Live URL**: Live project website
+- **GitHub URL**: Repository link
+- **Case Study URL**: Detailed write-up
+
+### Metadata
+- **Category**: Project category
+- **Featured**: Highlight on homepage
+- **Sort Order**: Display order
+
+<Alert variant="info">
+  <AlertTitle>Frontend Integration</AlertTitle>
+  <AlertDescription>
+    Projects can be fetched via API and displayed on your personal website. Use <code>/api/projects</code> to get all published projects, or <code>/api/projects?category=startup</code> to filter by category. The cover image URL is available for easy display.
+  </AlertDescription>
+</Alert>
+

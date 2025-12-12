@@ -1,0 +1,157 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Frontend Tracking Integration
+
+Detailed guide for integrating analytics tracking into your frontend websites.
+
+## Overview
+
+The tracking script (`analytics.js`) automatically tracks page views and allows you to track custom events across your websites.
+
+## Installation
+
+### Step 1: Host the Tracking Script
+
+The tracking script is located at `/public/analytics.js` in your CMS. Make sure it's accessible at:
+
+```
+https://your-cms-domain.com/analytics.js
+```
+
+### Step 2: Add to Your Website
+
+Add the script before the closing `</body>` tag:
+
+<CodeBlock language="html">
+{`<!DOCTYPE html>
+<html>
+<head>
+  <title>Your Website</title>
+</head>
+<body>
+  <!-- Your content -->
+  
+  <!-- Analytics Tracking -->
+  <script src="https://your-cms-domain.com/analytics.js"></script>
+  <script>
+    window.CMSAnalytics.init({
+      apiUrl: 'https://your-cms-domain.com/api/analytics/track',
+      domain: 'www.yourdomain.com',
+      apiKey: 'your-secret-key-here',
+      userId: 'your-user-id' // Optional
+    });
+  </script>
+</body>
+</html>`}
+</CodeBlock>
+
+## Configuration Options
+
+### Required Options
+
+- **apiUrl**: Your CMS analytics API endpoint
+- **domain**: The domain of the current website
+- **apiKey**: Your analytics API key
+
+### Optional Options
+
+- **userId**: Your Supabase user ID (if not set in environment)
+
+## Single Page Applications (SPA)
+
+For React, Next.js, Vue, or other SPAs, the script automatically tracks route changes:
+
+<CodeBlock language="javascript">
+{`// The script automatically listens to:
+// - popstate events (browser back/forward)
+// - pushState/replaceState (programmatic navigation)
+
+// No additional code needed for Next.js, React Router, etc.`}
+</CodeBlock>
+
+## Custom Events
+
+Track custom user interactions:
+
+<CodeBlock language="javascript">
+{`// Track button clicks
+document.getElementById('contact-button').addEventListener('click', () => {
+  window.CMSAnalytics.trackEvent('button_click', {
+    buttonName: 'Contact Me',
+    page: window.location.pathname
+  });
+});
+
+// Track form submissions
+document.getElementById('newsletter-form').addEventListener('submit', () => {
+  window.CMSAnalytics.trackEvent('form_submit', {
+    formName: 'Newsletter',
+    page: window.location.pathname
+  });
+});
+
+// Track video plays
+document.getElementById('video').addEventListener('play', () => {
+  window.CMSAnalytics.trackEvent('video_play', {
+    videoId: 'intro-video',
+    page: window.location.pathname
+  });
+});`}
+</CodeBlock>
+
+## Event Data Structure
+
+Custom events can include any metadata:
+
+<CodeBlock language="javascript">
+{`window.CMSAnalytics.trackEvent('custom_event', {
+  // Any custom data
+  category: 'engagement',
+  action: 'download',
+  label: 'PDF Guide',
+  value: 1
+});`}
+</CodeBlock>
+
+## Multiple Websites
+
+Track multiple websites with different domains:
+
+<CodeBlock language="html">
+{`<!-- Website 1: www.yourdomain.com -->
+<script>
+  window.CMSAnalytics.init({
+    apiUrl: 'https://your-cms-domain.com/api/analytics/track',
+    domain: 'www.yourdomain.com',
+    apiKey: 'your-secret-key-here'
+  });
+</script>
+
+<!-- Website 2: photos.yourdomain.com -->
+<script>
+  window.CMSAnalytics.init({
+    apiUrl: 'https://your-cms-domain.com/api/analytics/track',
+    domain: 'photos.yourdomain.com',
+    apiKey: 'your-secret-key-here'
+  });
+</script>`}
+</CodeBlock>
+
+## Testing
+
+Test your tracking setup:
+
+1. Open your website
+2. Open browser DevTools → Console
+3. Navigate between pages
+4. Check for tracking requests in Network tab
+5. Verify events appear in CMS Analytics dashboard
+
+<Alert variant="info">
+  <AlertTitle>CORS</AlertTitle>
+  <AlertDescription>
+    The analytics API includes CORS headers to allow requests from your frontend domains. Make sure your CMS domain is correctly configured.
+  </AlertDescription>
+</Alert>
+

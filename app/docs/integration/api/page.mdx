@@ -1,0 +1,115 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# API Reference
+
+Complete API reference for integrating with your Personal CMS.
+
+## Analytics API
+
+### Track Event
+
+Track analytics events from external websites.
+
+**Endpoint**: `POST /api/analytics/track`
+
+**Headers**:
+- `Content-Type: application/json`
+- `x-api-key: your-api-key` (for external requests)
+
+**Request Body**:
+
+<CodeBlock language="json">
+{`{
+  "eventType": "pageview",
+  "domain": "www.yourdomain.com",
+  "path": "/projects",
+  "referrer": "https://google.com",
+  "userAgent": "Mozilla/5.0...",
+  "screenWidth": 1920,
+  "screenHeight": 1080,
+  "sessionId": "session-uuid"
+}`}
+</CodeBlock>
+
+**Response**:
+
+<CodeBlock language="json">
+{`{
+  "success": true,
+  "message": "Event tracked"
+}`}
+</CodeBlock>
+
+## Photo Analysis API
+
+### Analyze Photo
+
+Analyze a photo and generate metadata using AI.
+
+**Endpoint**: `POST /api/analyze-photo`
+
+**Headers**:
+- `Content-Type: multipart/form-data`
+
+**Request Body**:
+- `file`: Image file (FormData)
+
+**Response**:
+
+<CodeBlock language="json">
+{`{
+  "title": "Sunset over Mountains",
+  "description": "A beautiful sunset...",
+  "category": "nature",
+  "tags": ["sunset", "mountains", "landscape"],
+  "altText": "Sunset over mountain range..."
+}`}
+</CodeBlock>
+
+## Server Actions
+
+The CMS uses Next.js Server Actions for data operations. These are available in your React components.
+
+### Projects
+
+- `getProjects()` - Fetch all projects
+- `getProject(id)` - Fetch single project
+- `createProject(data)` - Create new project
+- `updateProject(id, data)` - Update project
+- `deleteProject(id)` - Delete project
+
+### Photos
+
+- `getPhotos()` - Fetch all photos
+- `getPhoto(id)` - Fetch single photo
+- `getPhotosByCategory(category)` - Fetch photos by category
+- `getFeaturedPhotos()` - Fetch featured photos
+- `createPhoto(data)` - Create new photo
+- `updatePhoto(id, data)` - Update photo
+- `deletePhoto(id)` - Delete photo
+
+### Analytics
+
+- `getAnalyticsSummary()` - Get analytics summary
+
+## Authentication
+
+All server actions require authentication via Supabase session. The CMS automatically handles authentication.
+
+For external API access (analytics), use API key authentication via the `x-api-key` header.
+
+<Alert variant="info">
+  <AlertTitle>Server Actions</AlertTitle>
+  <AlertDescription>
+    Server Actions are Next.js features that run on the server. They're automatically available in your React components without additional API routes.
+  </AlertDescription>
+</Alert>
+
+<Alert variant="warning">
+  <AlertTitle>API Keys</AlertTitle>
+  <AlertDescription>
+    Keep your API keys secure. Never expose them in client-side code. Use environment variables for all sensitive keys.
+  </AlertDescription>
+</Alert>
+

@@ -1,0 +1,123 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Analytics Setup
+
+Track page views and events from multiple frontend websites.
+
+## Overview
+
+The analytics system allows you to track visitor data from multiple websites (e.g., www.rashodkorala.com and photos.rashodkorala.com) in one central dashboard.
+
+## Features
+
+- **Multi-domain tracking**: Track multiple websites
+- **Automatic pageview tracking**: No manual code needed
+- **Device detection**: Desktop, mobile, tablet
+- **Browser and OS detection**: Automatic detection
+- **Session tracking**: Unique visitor identification
+- **Custom events**: Track button clicks and interactions
+- **Geographic data**: Country and city (if available)
+
+## Setup Steps
+
+### 1. Database Setup
+
+First, set up the analytics table. See the [Analytics Table](/protected/docs/database/analytics) guide.
+
+### 2. Environment Variables
+
+Add to your `.env.local`:
+
+<CodeBlock language="env">
+{`ANALYTICS_API_KEY=your-secret-key-here
+ANALYTICS_USER_ID=your-supabase-user-id`}
+</CodeBlock>
+
+Get your user ID from: **Supabase Dashboard → Authentication → Users**
+
+### 3. Add Tracking Script
+
+Add this to your frontend websites (before closing `</body>` tag):
+
+<CodeBlock language="html">
+{`<!-- For www.rashodkorala.com -->
+<script src="https://your-cms-domain.com/analytics.js"></script>
+<script>
+  window.CMSAnalytics.init({
+    apiUrl: 'https://your-cms-domain.com/api/analytics/track',
+    domain: 'www.rashodkorala.com',
+    apiKey: 'your-secret-key-here',
+    userId: 'your-user-id' // Optional if ANALYTICS_USER_ID is set
+  });
+</script>
+
+<!-- For photos.rashodkorala.com -->
+<script src="https://your-cms-domain.com/analytics.js"></script>
+<script>
+  window.CMSAnalytics.init({
+    apiUrl: 'https://your-cms-domain.com/api/analytics/track',
+    domain: 'photos.rashodkorala.com',
+    apiKey: 'your-secret-key-here',
+    userId: 'your-user-id'
+  });
+</script>`}
+</CodeBlock>
+
+### 4. Custom Events
+
+Track custom events like button clicks:
+
+<CodeBlock language="javascript">
+{`// Track a button click
+window.CMSAnalytics.trackEvent('button_click', {
+  buttonName: 'Contact Me',
+  page: '/about'
+});`}
+</CodeBlock>
+
+## What Gets Tracked
+
+### Automatic Tracking
+
+- Page views on route changes
+- Device type (desktop, mobile, tablet)
+- Browser and OS
+- Screen dimensions
+- Session ID for unique visitors
+- Referrer information
+
+### Custom Events
+
+You can track any custom events:
+
+- Button clicks
+- Form submissions
+- Video plays
+- Downloads
+- Any user interaction
+
+## Viewing Analytics
+
+1. Navigate to **Analytics** in the CMS sidebar
+2. View dashboard with:
+   - Total pageviews
+   - Unique visitors
+   - Daily pageview trends
+   - Top domains
+   - Device breakdown
+
+<Alert variant="success">
+  <AlertTitle>Automatic Tracking</AlertTitle>
+  <AlertDescription>
+    The tracking script automatically handles page views, device detection, session tracking, and browser/OS detection. No additional code needed!
+  </AlertDescription>
+</Alert>
+
+<Alert variant="info">
+  <AlertTitle>Privacy</AlertTitle>
+  <AlertDescription>
+    IP addresses are hashed for privacy. Geographic data is approximate and may not be available for all visitors.
+  </AlertDescription>
+</Alert>
+

@@ -1,0 +1,70 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Projects Storage Bucket
+
+Set up Supabase Storage for project image uploads.
+
+## Overview
+
+The projects storage bucket stores uploaded project images. It's configured as a public bucket so images can be accessed via public URLs.
+
+## Create Bucket via SQL
+
+Run this SQL script in your Supabase SQL Editor:
+
+<CodeBlock language="sql" filename="database-storage-projects-bucket.sql">
+{`-- Create projects bucket
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'projects',
+  'projects',
+  true, -- Public bucket
+  10485760, -- 10MB file size limit
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can upload project images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own project images" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own project images" ON storage.objects;
+DROP POLICY IF EXISTS "Public can view project images" ON storage.objects;
+
+-- Create storage policies
+CREATE POLICY "Users can upload project images"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'projects');
+
+CREATE POLICY "Users can update their own project images"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'projects')
+WITH CHECK (bucket_id = 'projects');
+
+CREATE POLICY "Users can delete their own project images"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'projects');
+
+CREATE POLICY "Public can view project images"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'projects');`}
+</CodeBlock>
+
+## Bucket Configuration
+
+- **Name**: `projects`
+- **Public**: Yes (required for frontend access)
+- **File Size Limit**: 10MB
+- **Allowed Types**: JPEG, PNG, WEBP, GIF
+
+<Alert variant="info">
+  <AlertTitle>Bucket Configuration</AlertTitle>
+  <AlertDescription>
+    Both buckets (photos and projects) use the same configuration: public access, 10MB file limit, and support for JPEG, PNG, WEBP, and GIF formats.
+  </AlertDescription>
+</Alert>
+

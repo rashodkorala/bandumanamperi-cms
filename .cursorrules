@@ -1,0 +1,3 @@
+system:
+  - description: Prefer pnpm for package management tasks.
+  - description: UI components under `components/ui` follow shadcn/ui patterns; match existing conventions.

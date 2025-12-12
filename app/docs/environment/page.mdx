@@ -1,0 +1,78 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Environment Setup
+
+Configure environment variables for your Personal CMS.
+
+## Required Variables
+
+These variables are required for the CMS to function:
+
+<CodeBlock language="env">
+{`NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key`}
+</CodeBlock>
+
+### Getting Supabase Credentials
+
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project
+3. Navigate to **Settings → API**
+4. Copy the **Project URL** and **anon/public key**
+
+## Optional Variables
+
+### OpenAI API Key
+
+Required for AI-powered features (photo analysis and project content generation):
+
+<CodeBlock language="env">
+{`OPENAI_API_KEY=sk-...`}
+</CodeBlock>
+
+<Alert variant="info">
+  <AlertTitle>OpenAI Setup</AlertTitle>
+  <AlertDescription>
+    Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys). This enables:
+    - AI-powered photo analysis (automatic metadata generation)
+    - AI-powered project content generation (problem, solution, features, tech stack)
+    See the [AI Analysis guide](/protected/docs/features/ai-analysis) for more details.
+  </AlertDescription>
+</Alert>
+
+### Analytics Configuration
+
+Required for multi-frontend analytics tracking:
+
+<CodeBlock language="env">
+{`ANALYTICS_API_KEY=your-secret-key-here
+ANALYTICS_USER_ID=your-supabase-user-id`}
+</CodeBlock>
+
+<Alert>
+  <AlertTitle>Analytics Setup</AlertTitle>
+  <AlertDescription>
+    Get your user ID from: <strong>Supabase Dashboard → Authentication → Users</strong>. See the [Analytics guide](/protected/docs/features/analytics) for setup instructions.
+  </AlertDescription>
+</Alert>
+
+## Environment File Location
+
+Create a `.env.local` file in the root directory of your project:
+
+```
+rashodkorala-cms/
+├── .env.local          ← Create this file
+├── app/
+├── components/
+└── ...
+```
+
+## Security Notes
+
+- Never commit `.env.local` to version control
+- Add `.env.local` to your `.gitignore` file
+- Use different keys for development and production
+- Rotate keys regularly for security
+

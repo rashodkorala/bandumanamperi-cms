@@ -1,0 +1,125 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Database Migrations
+
+Migration scripts for updating existing database tables without losing data.
+
+## Overview
+
+If you have existing tables with data, use these migration scripts to add new columns and features safely.
+
+## Available Migrations
+
+### Add Cover Image to Projects
+
+Adds the `cover_image_url` column to the projects table:
+
+<CodeBlock language="sql" filename="database-migration-add-cover-image.sql">
+{`-- Add cover_image_url column to projects table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'projects' 
+    AND column_name = 'cover_image_url'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN cover_image_url TEXT;
+    RAISE NOTICE 'Added cover_image_url column to projects table';
+  END IF;
+END $$;`}
+</CodeBlock>
+
+### Add Alt Text to Photos
+
+Adds the `alt_text` column to the photos table:
+
+<CodeBlock language="sql" filename="database-migration-add-alt-text.sql">
+{`-- Add alt_text column to photos table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'photos' 
+    AND column_name = 'alt_text'
+  ) THEN
+    ALTER TABLE photos ADD COLUMN alt_text TEXT;
+    RAISE NOTICE 'Added alt_text column to photos table';
+  END IF;
+END $$;`}
+</CodeBlock>
+
+### Migrate Existing Photos Table
+
+If you have an existing photos table without the `user_id` column and other fields, use this comprehensive migration:
+
+<CodeBlock language="sql" filename="database-migration-photos-existing-data.sql">
+{`-- Migration script for existing photos table with data
+-- This safely adds missing columns without losing data
+
+-- Step 1: Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view their own photos" ON photos;
+DROP POLICY IF EXISTS "Users can insert their own photos" ON photos;
+DROP POLICY IF EXISTS "Users can update their own photos" ON photos;
+DROP POLICY IF EXISTS "Users can delete their own photos" ON photos;
+
+-- Step 2: Add missing columns
+-- Add user_id column (nullable first, we'll populate it)
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'photos' 
+    AND column_name = 'user_id'
+  ) THEN
+    ALTER TABLE photos ADD COLUMN user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE;
+  END IF;
+END $$;
+
+-- Add other missing columns (location, date_taken, camera_settings, tags, featured)
+-- ... (see full migration file for complete script)
+
+-- Step 3: Update existing rows with user_id
+DO $$
+DECLARE
+  first_user_id UUID;
+BEGIN
+  SELECT id INTO first_user_id FROM auth.users ORDER BY created_at LIMIT 1;
+  IF first_user_id IS NOT NULL THEN
+    UPDATE photos SET user_id = first_user_id WHERE user_id IS NULL;
+  END IF;
+END $$;
+
+-- Step 4: Enable RLS and create policies
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+-- ... (create policies)
+
+-- Step 5: Create indexes and triggers
+-- ... (see full migration file)`}
+</CodeBlock>
+
+<Alert variant="warning">
+  <AlertTitle>Backup First</AlertTitle>
+  <AlertDescription>
+    Always backup your database before running migration scripts, especially if you have important data.
+  </AlertDescription>
+</Alert>
+
+## Running Migrations
+
+1. Open your Supabase Dashboard
+2. Navigate to **SQL Editor**
+3. Copy and paste the migration script
+4. Review the script carefully
+5. Click **Run** to execute
+
+<Alert variant="info">
+  <AlertTitle>Safe Migrations</AlertTitle>
+  <AlertDescription>
+    All migration scripts use `IF NOT EXISTS` checks to prevent errors if columns already exist. They're safe to run multiple times.
+  </AlertDescription>
+</Alert>
+

@@ -1,0 +1,68 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Getting Started
+
+Complete setup guide for your Personal CMS. Follow these steps to get up and running.
+
+## Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+  - **Node.js** 18+ installed
+- **pnpm** package manager (recommended) or npm/yarn
+- A **Supabase** account (free tier works)
+- (Optional) An **OpenAI API key** for AI photo analysis
+
+## Installation
+
+Clone the repository and install dependencies:
+
+<CodeBlock language="bash">
+{`# Clone the repository
+git clone <your-repo-url>
+cd rashodkorala-cms
+
+# Install dependencies
+pnpm install`}
+</CodeBlock>
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+<CodeBlock language="env">
+{`NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+OPENAI_API_KEY=your_openai_api_key_optional
+ANALYTICS_API_KEY=your_analytics_secret_key_optional
+ANALYTICS_USER_ID=your_supabase_user_id_optional`}
+</CodeBlock>
+
+
+<Alert>
+  <AlertTitle>Where to find credentials</AlertTitle>
+  <AlertDescription>
+    Get your Supabase credentials from: <strong>Settings → API</strong> in your Supabase Dashboard
+  </AlertDescription>
+</Alert>
+
+## Run Development Server
+
+Start the development server:
+
+<CodeBlock language="bash">
+{`pnpm dev`}
+</CodeBlock>
+
+Open `http://localhost:3000` in your browser.
+
+## Next Steps
+
+After installation, follow these guides:
+
+- [Set up the database](/docs/database/projects)
+- [Configure storage buckets](/docs/storage/photos)
+- [Set up analytics tracking](/docs/features/analytics)
+- [Configure AI photo analysis](/docs/features/ai-analysis)
+

@@ -1,0 +1,110 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Photos Table
+
+Set up the database table for managing your photography collection.
+
+## Overview
+
+The photos table stores information about your photography including:
+
+- Title, description, and alt text
+- Category organization
+- Location and date taken
+- Camera settings (aperture, shutter speed, ISO, etc.)
+- Tags for organization
+- Featured photo flag
+
+## Database Schema
+
+Run this SQL script in your Supabase SQL Editor:
+
+<CodeBlock language="sql" filename="database-schema-photos.sql">
+{`-- Create photos table
+CREATE TABLE IF NOT EXISTS photos (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  alt_text TEXT,
+  category TEXT,
+  location TEXT,
+  date_taken DATE,
+  camera_settings JSONB,
+  tags TEXT[] DEFAULT '{}',
+  featured BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW()) NOT NULL
+);
+
+-- Enable Row Level Security
+ALTER TABLE photos ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Users can view their own photos"
+  ON photos FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own photos"
+  ON photos FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own photos"
+  ON photos FOR UPDATE
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own photos"
+  ON photos FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- Create indexes
+CREATE INDEX IF NOT EXISTS photos_user_id_idx ON photos(user_id);
+CREATE INDEX IF NOT EXISTS photos_featured_idx ON photos(featured) WHERE featured = TRUE;
+CREATE INDEX IF NOT EXISTS photos_category_idx ON photos(category);
+CREATE INDEX IF NOT EXISTS photos_date_taken_idx ON photos(date_taken);
+
+-- Create trigger for updated_at
+CREATE OR REPLACE FUNCTION update_photos_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = TIMEZONE('utc', NOW());
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_photos_updated_at
+  BEFORE UPDATE ON photos
+  FOR EACH ROW
+  EXECUTE FUNCTION update_photos_updated_at();`}
+</CodeBlock>
+
+## Adding Alt Text Column
+
+If you need to add the alt_text column to an existing table, run:
+
+<CodeBlock language="sql" filename="database-migration-add-alt-text.sql">
+{`-- Add alt_text column to photos table
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns 
+    WHERE table_schema = 'public' 
+    AND table_name = 'photos' 
+    AND column_name = 'alt_text'
+  ) THEN
+    ALTER TABLE photos ADD COLUMN alt_text TEXT;
+    RAISE NOTICE 'Added alt_text column to photos table';
+  END IF;
+END $$;`}
+</CodeBlock>
+
+<Alert variant="warning">
+  <AlertTitle>Existing Data</AlertTitle>
+  <AlertDescription>
+    If you have an existing photos table without the `user_id` column, use the migration script: `database-migration-photos-existing-data.sql`
+  </AlertDescription>
+</Alert>
+

@@ -1,0 +1,62 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Installation
+
+Step-by-step guide to install and set up your Personal CMS.
+
+## Prerequisites
+
+Ensure you have the following installed:
+
+- **Node.js** 18.0 or higher
+- **pnpm** (recommended) or npm/yarn
+- A **Supabase** account
+- Git (for cloning the repository)
+
+## 1. Clone Repository
+
+<CodeBlock language="bash">
+{`git clone <your-repo-url>
+cd rashodkorala-cms`}
+</CodeBlock>
+
+## 2. Install Dependencies
+
+<CodeBlock language="bash">
+{`pnpm install`}
+</CodeBlock>
+
+If you don't have pnpm installed: `npm install -g pnpm`
+
+## 3. Set Up Environment Variables
+
+Create a `.env.local` file:
+
+<CodeBlock language="env">
+{`NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key`}
+</CodeBlock>
+
+<Alert variant="info">
+  <AlertTitle>Get Supabase Credentials</AlertTitle>
+  <AlertDescription>
+    Go to your Supabase project → <strong>Settings → API</strong> to find your project URL and anon key.
+  </AlertDescription>
+</Alert>
+
+## 4. Run Development Server
+
+<CodeBlock language="bash">
+{`pnpm dev`}
+</CodeBlock>
+
+Open `http://localhost:3000` in your browser.
+
+## Next Steps
+
+After installation, continue with:
+
+1. [Set up database tables](/protected/docs/database/projects)
+2. [Configure storage buckets](/protected/docs/storage/photos)
+3. [Set up analytics (optional)](/protected/docs/features/analytics)

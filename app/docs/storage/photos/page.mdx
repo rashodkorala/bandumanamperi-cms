@@ -1,0 +1,81 @@
+import { CodeBlock } from "@/components/docs/code-block"
+import { Alert, AlertDescription, AlertTitle } from "@/components/docs/alert"
+
+# Photos Storage Bucket
+
+Set up Supabase Storage for photo uploads.
+
+## Overview
+
+The photos storage bucket stores uploaded image files. It's configured as a public bucket so images can be accessed via public URLs.
+
+## Create Bucket via SQL
+
+Run this SQL script in your Supabase SQL Editor:
+
+<CodeBlock language="sql" filename="database-storage-photos-bucket.sql">
+{`-- Create photos bucket
+INSERT INTO storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+VALUES (
+  'photos',
+  'photos',
+  true, -- Public bucket
+  10485760, -- 10MB file size limit
+  ARRAY['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can upload photos" ON storage.objects;
+DROP POLICY IF EXISTS "Users can update their own photos" ON storage.objects;
+DROP POLICY IF EXISTS "Users can delete their own photos" ON storage.objects;
+DROP POLICY IF EXISTS "Public can view photos" ON storage.objects;
+
+-- Create storage policies
+CREATE POLICY "Users can upload photos"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (bucket_id = 'photos');
+
+CREATE POLICY "Users can update their own photos"
+ON storage.objects FOR UPDATE
+TO authenticated
+USING (bucket_id = 'photos')
+WITH CHECK (bucket_id = 'photos');
+
+CREATE POLICY "Users can delete their own photos"
+ON storage.objects FOR DELETE
+TO authenticated
+USING (bucket_id = 'photos');
+
+CREATE POLICY "Public can view photos"
+ON storage.objects FOR SELECT
+TO public
+USING (bucket_id = 'photos');`}
+</CodeBlock>
+
+## Create Bucket Manually
+
+Alternatively, create the bucket in Supabase Dashboard:
+
+1. Go to **Supabase Dashboard → Storage**
+2. Click **"Create a new bucket"**
+3. Name it `photos`
+4. Make it **Public**
+5. Set file size limit to **10MB**
+6. Run the SQL policies above to set up access
+
+## Bucket Configuration
+
+- **Name**: `photos`
+- **Public**: Yes (required for frontend access)
+- **File Size Limit**: 10MB
+- **Allowed Types**: JPEG, PNG, WEBP, GIF
+
+<Alert variant="info">
+  <AlertTitle>Public Access</AlertTitle>
+  <AlertDescription>
+    The bucket is set to public so images can be accessed via public URLs. This is required for displaying photos on your frontend websites.
+  </AlertDescription>
+</Alert>
+
