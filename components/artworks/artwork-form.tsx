@@ -35,6 +35,7 @@ import type {
 } from "@/lib/types/artwork"
 import { createArtwork, updateArtwork } from "@/lib/actions/artworks"
 import { generateSlug, validateSlug } from "@/lib/utils/slug"
+import Image from "next/image"
 
 interface ArtworkFormProps {
   artwork?: Artwork | null
@@ -192,7 +193,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
   const handleMediaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
     setMediaFiles((prev) => [...prev, ...files])
-    
+
     files.forEach((file) => {
       const reader = new FileReader()
       reader.onloadend = () => {
@@ -835,11 +836,13 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                 onChange={handleThumbnailChange}
               />
               {thumbnailPreview && (
-                <div className="mt-2">
-                  <img
+                <div className="mt-2 relative h-32 w-32">
+                  <Image
                     src={thumbnailPreview}
                     alt="Thumbnail preview"
-                    className="h-32 w-32 object-cover rounded"
+                    fill
+                    className="object-cover rounded"
+                    unoptimized
                   />
                 </div>
               )}
@@ -856,17 +859,19 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
               {mediaFiles.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {mediaFiles.map((file) => (
-                    <div key={file.name} className="relative">
-                      <img
+                    <div key={file.name} className="relative h-24 w-24">
+                      <Image
                         src={mediaPreviews[file.name]}
                         alt={file.name}
-                        className="h-24 w-24 object-cover rounded"
+                        fill
+                        className="object-cover rounded"
+                        unoptimized
                       />
                       <Button
                         type="button"
                         variant="destructive"
                         size="sm"
-                        className="absolute top-0 right-0"
+                        className="absolute top-0 right-0 z-10"
                         onClick={() => removeMediaFile(file.name)}
                       >
                         ×
@@ -878,17 +883,18 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
               {formData.media && formData.media.length > 0 && (
                 <div className="grid grid-cols-4 gap-2 mt-2">
                   {formData.media.map((url) => (
-                    <div key={url} className="relative">
-                      <img
+                    <div key={url} className="relative h-24 w-24">
+                      <Image
                         src={url}
                         alt="Media"
-                        className="h-24 w-24 object-cover rounded"
+                        fill
+                        className="object-cover rounded"
                       />
                       <Button
                         type="button"
                         variant="destructive"
                         size="sm"
-                        className="absolute top-0 right-0"
+                        className="absolute top-0 right-0 z-10"
                         onClick={() => removeMediaUrl(url)}
                       >
                         ×
