@@ -1,15 +1,27 @@
+import { redirect } from "next/navigation"
 import {
     SidebarInset,
     SidebarProvider,
 } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
+import { createClient } from "@/lib/supabase/server"
 
-export default function DashboardLayout({
+export default async function DashboardLayout({
     children,
 }: {
     children: React.ReactNode
 }) {
+    // Verify user is authenticated
+    const supabase = await createClient()
+    const {
+        data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user) {
+        redirect("/auth/login")
+    }
+
     return (
         <SidebarProvider
             defaultOpen={true}

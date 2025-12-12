@@ -150,6 +150,16 @@ export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
 export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
   const supabase = await createClient()
 
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to create artworks")
+  }
+
   const { data, error } = await supabase
     .from("artworks")
     .insert({
@@ -197,6 +207,16 @@ export async function updateArtwork(
   artwork: ArtworkUpdate
 ): Promise<Artwork> {
   const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to update artworks")
+  }
 
   const { id, ...updates } = artwork
 
@@ -248,6 +268,16 @@ export async function updateArtwork(
 export async function deleteArtwork(id: string): Promise<void> {
   const supabase = await createClient()
 
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to delete artworks")
+  }
+
   const { error } = await supabase
     .from("artworks")
     .delete()
@@ -266,6 +296,16 @@ export async function deleteArtwork(id: string): Promise<void> {
  */
 export async function duplicateArtwork(id: string): Promise<Artwork> {
   const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to duplicate artworks")
+  }
 
   // Get the original artwork
   const original = await getArtwork(id)
@@ -357,6 +397,16 @@ export async function incrementArtworkViews(id: string): Promise<void> {
 export async function getArtworkSeries(): Promise<string[]> {
   const supabase = await createClient()
 
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to view series")
+  }
+
   const { data, error } = await supabase
     .from("artworks")
     .select("series")
@@ -382,6 +432,16 @@ export async function getArtworkSeries(): Promise<string[]> {
  */
 export async function getArtworksByCollection(): Promise<Record<string, Artwork[]>> {
   const supabase = await createClient()
+
+  // Verify user is authenticated (collections view is protected)
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to view collections")
+  }
 
   // Get all artworks with series
   const { data, error } = await supabase
