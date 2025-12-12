@@ -56,14 +56,14 @@ export function ChartAreaInteractive({ analytics }: ChartAreaInteractiveProps) {
 
   // Transform analytics data for chart
   const chartData = React.useMemo(() => {
-    if (!analytics?.dailyViews || analytics.dailyViews.length === 0) {
+    if (!analytics?.dailyViews || Object.keys(analytics.dailyViews).length === 0) {
       return []
     }
 
-    return analytics.dailyViews
-      .map((item) => ({
-        date: item.date,
-        views: item.views,
+    return Object.entries(analytics.dailyViews)
+      .map(([date, views]) => ({
+        date,
+        views: Number(views) || 0,
       }))
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   }, [analytics])

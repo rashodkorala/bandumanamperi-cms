@@ -1,19 +1,14 @@
 import Dashboard from "@/components/dashboard";
-import { getProjects } from "@/lib/actions/projects";
-import { getPhotos } from "@/lib/actions/photos";
 import { getAnalyticsSummary } from "@/lib/actions/analytics";
+import { getArtworks } from "@/lib/actions/artworks";
 
 export default async function Page() {
-  const [projects, photos, analytics] = await Promise.all([
-    getProjects().catch(() => []),
-    getPhotos().catch(() => []),
-    getAnalyticsSummary().catch(() => null),
-  ]);
+  const analytics = await getAnalyticsSummary();
+  const artworks = await getArtworks({ includeDrafts: true });
 
   return (
     <Dashboard
-      projectsCount={projects.length}
-      photosCount={photos.length}
+      artworksCount={artworks.length}
       analytics={analytics}
     />
   );

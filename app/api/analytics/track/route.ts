@@ -67,20 +67,20 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = await createClient()
     const body = (await request.json()) as AnalyticsEvent & { userId?: string }
-    
+
     // Try to get user from session first (for CMS internal tracking)
     let user = null
     const {
       data: { user: sessionUser },
     } = await supabase.auth.getUser()
-    
+
     if (sessionUser) {
       user = sessionUser
     } else {
       // If no session, try API key authentication for external sites
       const apiKey = request.headers.get("x-api-key")
       const expectedKey = process.env.ANALYTICS_API_KEY
-      
+
       if (!apiKey || !expectedKey || apiKey !== expectedKey) {
         return NextResponse.json(
           { error: "Unauthorized - Invalid API key" },
@@ -93,10 +93,10 @@ export async function POST(request: NextRequest) {
           }
         )
       }
-      
+
       // Get user ID from environment or request body
       const userId = body.userId || process.env.ANALYTICS_USER_ID
-      
+
       if (!userId) {
         return NextResponse.json(
           { error: "User ID required. Set ANALYTICS_USER_ID in env or pass userId in request" },
@@ -109,7 +109,7 @@ export async function POST(request: NextRequest) {
           }
         )
       }
-      
+
       // Create a user object with the ID (we'll use this for the insert)
       user = { id: userId } as any
     }
@@ -142,6 +142,7 @@ export async function POST(request: NextRequest) {
       event_type: body.eventType,
       domain: body.domain,
       path: body.path,
+      artwork_id: body.artworkId || null,
       referrer: body.referrer || null,
       user_agent: userAgent,
       ip_address: hashIP(ipAddress),
@@ -187,4 +188,3 @@ export async function POST(request: NextRequest) {
     )
   }
 }
-

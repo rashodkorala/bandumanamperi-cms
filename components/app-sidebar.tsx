@@ -10,6 +10,7 @@ import {
   IconPhoto,
   IconSettings,
   IconBook,
+  IconFolders,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -34,9 +35,14 @@ const data = {
       icon: IconDashboard,
     },
     {
-      title: "Projects",
-      url: "/protected/projects",
+      title: "Artworks",
+      url: "/protected/artworks",
       icon: IconFolder,
+    },
+    {
+      title: "Collections",
+      url: "/protected/collections",
+      icon: IconFolders,
     },
     {
       title: "Photos",
@@ -44,7 +50,7 @@ const data = {
       icon: IconPhoto,
     },
     {
-      title: "Content",
+      title: "Blog",
       url: "/protected/content",
       icon: IconFileDescription,
     },
@@ -52,6 +58,7 @@ const data = {
       title: "Pages",
       url: "/protected/pages",
       icon: IconListDetails,
+      comingSoon: true,
     },
     {
       title: "Analytics",

@@ -261,9 +261,22 @@ export function BlogForm({ isOpen, onClose, editingBlog }: BlogFormProps) {
               onChange={(e) => setFormData({ ...formData, content: e.target.value })}
               required
               disabled={isLoading}
-              rows={10}
-              placeholder="Write your blog post content here (supports Markdown)"
+              rows={20}
+              className="font-mono text-sm"
+              placeholder="Write your blog post content here (supports Markdown)
+
+Example:
+# Heading
+## Subheading
+**Bold text** and *italic text*
+- List item 1
+- List item 2
+
+[Link text](https://example.com)"
             />
+            <p className="text-xs text-muted-foreground mt-1">
+              Supports Markdown formatting. Use # for headings, ** for bold, * for italic, etc.
+            </p>
           </div>
 
           <div>
