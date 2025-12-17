@@ -6,3 +6,4 @@ export default async function CollectionsPage() {
   return <Collections initialCollections={collections} />
 }
 
+

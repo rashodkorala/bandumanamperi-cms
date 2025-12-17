@@ -199,6 +199,7 @@ export function Pages({ initialPages }: PagesProps) {
               <TableHead>Slug</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Type</TableHead>
+              <TableHead>Files</TableHead>
               <TableHead>Homepage</TableHead>
               <TableHead>Published</TableHead>
               <TableHead className="text-right">Actions</TableHead>
@@ -216,6 +217,35 @@ export function Pages({ initialPages }: PagesProps) {
                 </TableCell>
                 <TableCell>
                   <Badge variant="outline">{page.contentType}</Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex gap-1">
+                    {page.markdownFileUrl && (
+                      <a
+                        href={page.markdownFileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                        title="View Markdown file"
+                      >
+                        .md
+                      </a>
+                    )}
+                    {page.jsonFileUrl && (
+                      <a
+                        href={page.jsonFileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                        title="View JSON file"
+                      >
+                        .json
+                      </a>
+                    )}
+                    {!page.markdownFileUrl && !page.jsonFileUrl && (
+                      <span className="text-xs text-muted-foreground">-</span>
+                    )}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {page.isHomepage && (

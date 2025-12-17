@@ -70,3 +70,4 @@ All references to:
 - `/api/projects` → `/api/artworks`
 - `/api/photos` → `/api/artworks` (if exists)
 
+

@@ -111,3 +111,4 @@ export interface ArtworkUpdate extends Partial<ArtworkInsert> {
   id: string
 }
 
+

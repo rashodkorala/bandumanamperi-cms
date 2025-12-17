@@ -19,6 +19,8 @@ export interface PageDB {
   parent_id: string | null
   sort_order: number
   is_homepage: boolean
+  markdown_file_url: string | null
+  json_file_url: string | null
   created_at: string
   updated_at: string
 }
@@ -41,6 +43,8 @@ export interface Page {
   parentId: string | null
   sortOrder: number
   isHomepage: boolean
+  markdownFileUrl: string | null
+  jsonFileUrl: string | null
   createdAt: string
   updatedAt: string
 }

@@ -391,3 +391,4 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
 
 export default Collections
 
+

@@ -71,3 +71,4 @@ CREATE TRIGGER trigger_update_blogs_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_blogs_updated_at();
 
+

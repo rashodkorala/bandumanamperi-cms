@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS pages (
   parent_id UUID REFERENCES pages(id) ON DELETE SET NULL,
   sort_order INTEGER DEFAULT 0,
   is_homepage BOOLEAN DEFAULT false,
+  markdown_file_url TEXT,
+  json_file_url TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   -- Ensure unique slug per user

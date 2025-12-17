@@ -20,6 +20,8 @@ function transformPage(page: PageDB): Page {
     parentId: page.parent_id,
     sortOrder: page.sort_order,
     isHomepage: page.is_homepage,
+    markdownFileUrl: page.markdown_file_url,
+    jsonFileUrl: page.json_file_url,
     createdAt: page.created_at,
     updatedAt: page.updated_at,
   }
@@ -72,4 +74,5 @@ export async function GET(
     )
   }
 }
+
 
