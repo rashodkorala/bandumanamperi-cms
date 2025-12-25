@@ -302,3 +302,4 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
 }
 
 
+

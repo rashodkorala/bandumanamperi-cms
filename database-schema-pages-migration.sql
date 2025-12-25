@@ -15,3 +15,4 @@ CREATE INDEX IF NOT EXISTS idx_pages_markdown_file_url ON pages(markdown_file_ur
 CREATE INDEX IF NOT EXISTS idx_pages_json_file_url ON pages(json_file_url) WHERE json_file_url IS NOT NULL;
 
 -- No need to modify existing data - the uploadPageFiles function will generate files on next update
+

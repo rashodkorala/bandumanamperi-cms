@@ -223,3 +223,4 @@ https://your-project.supabase.co/storage/v1/object/public/pages/{slug}.json
 ---
 
 **Enjoy building with your new pages system! 🚀**
+

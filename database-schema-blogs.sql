@@ -72,3 +72,4 @@ CREATE TRIGGER trigger_update_blogs_updated_at
   EXECUTE FUNCTION update_blogs_updated_at();
 
 
+

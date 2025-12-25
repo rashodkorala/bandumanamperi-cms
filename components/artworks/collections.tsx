@@ -8,6 +8,8 @@ import {
   IconEye,
   IconRefresh,
   IconTrash,
+  IconPlus,
+  IconUpload,
 } from "@tabler/icons-react"
 import { toast } from "sonner"
 import Image from "next/image"
@@ -26,8 +28,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { ArtworkPreview } from "./artwork-preview"
+import { ArtworkBulkUpload } from "./artwork-bulk-upload"
+import { CollectionFromArtworks } from "./collection-from-artworks"
+import { EditCollection } from "./edit-collection"
 import type { Artwork, ArtworkStatus } from "@/lib/types/artwork"
-import { deleteArtwork } from "@/lib/actions/artworks"
+import { deleteArtwork, deleteCollection } from "@/lib/actions/artworks"
 import { cn } from "@/lib/utils"
 import { createClient } from "@/lib/supabase/client"
 
@@ -42,6 +47,12 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
   const [previewArtwork, setPreviewArtwork] = useState<Artwork | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const [isBulkUploadOpen, setIsBulkUploadOpen] = useState(false)
+  const [isCollectionDialogOpen, setIsCollectionDialogOpen] = useState(false)
+  const [editingCollection, setEditingCollection] = useState<{
+    name: string
+    artworks: Artwork[]
+  } | null>(null)
 
   const supabase = useMemo(() => createClient(), [])
 
@@ -124,6 +135,31 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
       toast.error("Failed to refresh data")
     } finally {
       setIsRefreshing(false)
+    }
+  }
+
+  const handleEditCollection = (collectionName: string, artworks: Artwork[]) => {
+    setEditingCollection({ name: collectionName, artworks })
+  }
+
+  const handleDeleteCollection = async (collectionName: string) => {
+    if (!confirm(`Are you sure you want to delete the collection "${collectionName}"? This will remove the collection from all ${filteredCollections[collectionName].length} artwork(s). The artworks themselves will not be deleted.`)) {
+      return
+    }
+
+    try {
+      await deleteCollection(collectionName)
+      setCollections((prev) => {
+        const updated = { ...prev }
+        delete updated[collectionName]
+        return updated
+      })
+      toast.success(`Collection "${collectionName}" deleted successfully`)
+      router.refresh()
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to delete collection"
+      )
     }
   }
 
@@ -234,6 +270,22 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
                   />
                   <span className="hidden sm:inline">Refresh</span>
                 </Button>
+                <Button
+                  onClick={() => setIsBulkUploadOpen(true)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <IconUpload className="size-4" />
+                  <span className="hidden sm:inline">Bulk Upload</span>
+                </Button>
+                <Button
+                  onClick={() => setIsCollectionDialogOpen(true)}
+                  variant="outline"
+                  size="sm"
+                >
+                  <IconPlus className="size-4" />
+                  <span className="hidden sm:inline">From Existing</span>
+                </Button>
                 <Link href="/protected/artworks">
                   <Button variant="outline" size="sm">
                     <IconPalette className="size-4" />
@@ -288,6 +340,31 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
                               )}
                             </CardDescription>
                           </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <IconDotsVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleEditCollection(collectionName, artworks)}>
+                                <IconEdit className="size-4 mr-2" />
+                                Edit Collection
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                className="text-destructive focus:text-destructive"
+                                onClick={() => handleDeleteCollection(collectionName)}
+                              >
+                                <IconTrash className="size-4 mr-2" />
+                                Delete Collection
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </CardHeader>
                       <div className="px-6 pb-6">
@@ -385,10 +462,39 @@ const Collections = ({ initialCollections }: CollectionsProps) => {
           }
         }}
       />
+      <ArtworkBulkUpload
+        open={isBulkUploadOpen}
+        onOpenChange={(open) => {
+          setIsBulkUploadOpen(open)
+          if (!open) {
+            router.refresh()
+          }
+        }}
+      />
+      <CollectionFromArtworks
+        open={isCollectionDialogOpen}
+        onOpenChange={(open) => {
+          setIsCollectionDialogOpen(open)
+          if (!open) {
+            router.refresh()
+          }
+        }}
+      />
+      <EditCollection
+        open={!!editingCollection}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingCollection(null)
+          }
+        }}
+        collectionName={editingCollection?.name || ""}
+        artworks={editingCollection?.artworks || []}
+      />
     </div>
   )
 }
 
 export default Collections
+
 
 

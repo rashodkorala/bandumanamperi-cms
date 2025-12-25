@@ -471,3 +471,159 @@ export async function getArtworksByCollection(): Promise<Record<string, Artwork[
   return grouped
 }
 
+/**
+ * Update multiple artworks to assign them to a collection/series
+ */
+export async function updateArtworksCollection(
+  artworkIds: string[],
+  collectionName: string
+): Promise<void> {
+  const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to update collections")
+  }
+
+  if (artworkIds.length === 0) {
+    throw new Error("No artworks selected")
+  }
+
+  if (!collectionName.trim()) {
+    throw new Error("Collection name is required")
+  }
+
+  // Update all selected artworks with the new series name
+  const { error } = await supabase
+    .from("artworks")
+    .update({ series: collectionName.trim() })
+    .in("id", artworkIds)
+
+  if (error) {
+    throw new Error(`Failed to update artworks: ${error.message}`)
+  }
+
+  revalidatePath("/protected/artworks")
+  revalidatePath("/protected/collections")
+  revalidatePath("/api/artworks")
+}
+
+/**
+ * Rename a collection (updates series field for all artworks in the collection)
+ */
+export async function renameCollection(
+  oldName: string,
+  newName: string
+): Promise<void> {
+  const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to rename collections")
+  }
+
+  if (!oldName.trim() || !newName.trim()) {
+    throw new Error("Collection names are required")
+  }
+
+  if (oldName.trim() === newName.trim()) {
+    throw new Error("New name must be different from the old name")
+  }
+
+  // Update all artworks with the old series name to the new series name
+  const { error } = await supabase
+    .from("artworks")
+    .update({ series: newName.trim() })
+    .eq("series", oldName.trim())
+
+  if (error) {
+    throw new Error(`Failed to rename collection: ${error.message}`)
+  }
+
+  revalidatePath("/protected/artworks")
+  revalidatePath("/protected/collections")
+  revalidatePath("/api/artworks")
+}
+
+/**
+ * Delete a collection (removes series field from all artworks in the collection)
+ */
+export async function deleteCollection(collectionName: string): Promise<void> {
+  const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to delete collections")
+  }
+
+  if (!collectionName.trim()) {
+    throw new Error("Collection name is required")
+  }
+
+  // Remove series from all artworks in this collection
+  const { error } = await supabase
+    .from("artworks")
+    .update({ series: null })
+    .eq("series", collectionName.trim())
+
+  if (error) {
+    throw new Error(`Failed to delete collection: ${error.message}`)
+  }
+
+  revalidatePath("/protected/artworks")
+  revalidatePath("/protected/collections")
+  revalidatePath("/api/artworks")
+}
+
+/**
+ * Remove artworks from a collection
+ */
+export async function removeArtworksFromCollection(
+  artworkIds: string[]
+): Promise<void> {
+  const supabase = await createClient()
+
+  // Verify user is authenticated
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError || !user) {
+    throw new Error("Unauthorized: You must be logged in to update collections")
+  }
+
+  if (artworkIds.length === 0) {
+    throw new Error("No artworks selected")
+  }
+
+  // Remove series from selected artworks
+  const { error } = await supabase
+    .from("artworks")
+    .update({ series: null })
+    .in("id", artworkIds)
+
+  if (error) {
+    throw new Error(`Failed to remove artworks from collection: ${error.message}`)
+  }
+
+  revalidatePath("/protected/artworks")
+  revalidatePath("/protected/collections")
+  revalidatePath("/api/artworks")
+}
+
