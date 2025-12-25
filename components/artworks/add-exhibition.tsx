@@ -76,8 +76,14 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             return path
         }
 
-        // Otherwise, create public URL from storage path
-        const { data } = supabase.storage.from("artworks").getPublicUrl(path)
+        // Determine bucket based on path (for backward compatibility)
+        // New exhibition images don't have folder prefix
+        // Old exhibition images have "exhibitions/" prefix
+        const isExhibitionImage = !path.includes("/") || path.startsWith("exhibitions/")
+        const bucket = isExhibitionImage ? "exhibitions" : "artworks"
+        const filePath = path.replace("exhibitions/", "") // Remove old prefix if exists
+
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
         return data.publicUrl
     }
 
@@ -129,11 +135,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
         setIsUploadingImage(true)
         try {
             const fileExt = coverImage.name.split(".").pop()
-            const fileName = `exhibition-cover-${Date.now()}.${fileExt}`
-            const filePath = `exhibitions/${fileName}`
+            const fileName = `cover-${Date.now()}.${fileExt}`
+            const filePath = fileName
 
             const { error: uploadError } = await supabase.storage
-                .from("artworks")
+                .from("exhibitions")
                 .upload(filePath, coverImage)
 
             if (uploadError) {
@@ -183,11 +189,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
         for (const [index, file] of exhibitionImages.entries()) {
             try {
                 const fileExt = file.name.split(".").pop()
-                const fileName = `exhibition-img-${Date.now()}-${index}.${fileExt}`
-                const filePath = `exhibitions/${fileName}`
+                const fileName = `img-${Date.now()}-${index}.${fileExt}`
+                const filePath = fileName
 
                 const { error: uploadError } = await supabase.storage
-                    .from("artworks")
+                    .from("exhibitions")
                     .upload(filePath, file)
 
                 if (uploadError) {

@@ -106,7 +106,14 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
             return path
         }
 
-        const { data } = supabase.storage.from("artworks").getPublicUrl(path)
+        // Determine bucket based on path (for backward compatibility)
+        // New exhibition images don't have folder prefix
+        // Old exhibition images have "exhibitions/" prefix
+        const isExhibitionImage = !path.includes("/") || path.startsWith("exhibitions/")
+        const bucket = isExhibitionImage ? "exhibitions" : "artworks"
+        const filePath = path.replace("exhibitions/", "") // Remove old prefix if exists
+
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
         return data.publicUrl
     }
 
@@ -179,11 +186,11 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         setIsUploadingImage(true)
         try {
             const fileExt = newCoverImage.name.split(".").pop()
-            const fileName = `exhibition-${Date.now()}.${fileExt}`
-            const filePath = `exhibitions/${fileName}`
+            const fileName = `cover-${Date.now()}.${fileExt}`
+            const filePath = fileName
 
             const { error: uploadError } = await supabase.storage
-                .from("artworks")
+                .from("exhibitions")
                 .upload(filePath, newCoverImage)
 
             if (uploadError) {
@@ -237,11 +244,11 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         for (const [index, file] of newExhibitionImages.entries()) {
             try {
                 const fileExt = file.name.split(".").pop()
-                const fileName = `exhibition-img-${Date.now()}-${index}.${fileExt}`
-                const filePath = `exhibitions/${fileName}`
+                const fileName = `img-${Date.now()}-${index}.${fileExt}`
+                const filePath = fileName
 
                 const { error: uploadError } = await supabase.storage
-                    .from("artworks")
+                    .from("exhibitions")
                     .upload(filePath, file)
 
                 if (uploadError) {

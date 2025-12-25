@@ -190,8 +190,15 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
             return path
         }
 
+        // Determine bucket based on path (for backward compatibility)
+        // New exhibition images don't have folder prefix
+        // Old exhibition images have "exhibitions/" prefix
+        const isExhibitionImage = !path.includes("/") || path.startsWith("exhibitions/")
+        const bucket = isExhibitionImage ? "exhibitions" : "artworks"
+        const filePath = path.replace("exhibitions/", "") // Remove old prefix if exists
+
         // Otherwise, create public URL from storage path
-        const { data } = supabase.storage.from("artworks").getPublicUrl(path)
+        const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
         return data.publicUrl
     }
 
