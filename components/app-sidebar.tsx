@@ -11,6 +11,7 @@ import {
   IconSettings,
   IconBook,
   IconFolders,
+  IconCalendar,
 } from "@tabler/icons-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -43,6 +44,11 @@ const data = {
       title: "Collections",
       url: "/protected/collections",
       icon: IconFolders,
+    },
+    {
+      title: "Exhibitions",
+      url: "/protected/exhibitions",
+      icon: IconCalendar,
     },
     {
       title: "Photos",
