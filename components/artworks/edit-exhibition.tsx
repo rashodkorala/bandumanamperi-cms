@@ -15,8 +15,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { IconEdit, IconTrash, IconCheck, IconX, IconPlus, IconSearch } from "@tabler/icons-react"
-import type { Artwork } from "@/lib/types/artwork"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { IconEdit, IconTrash, IconCheck, IconX, IconPlus, IconSearch, IconUpload } from "@tabler/icons-react"
+import type { Artwork, ExhibitionType } from "@/lib/types/artwork"
 import {
     updateExhibition,
     removeArtworksFromExhibition,
@@ -41,8 +42,18 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
     const supabase = useMemo(() => createClient(), [])
 
     const [newName, setNewName] = useState("")
-    const [newLocation, setNewLocation] = useState("")
-    const [newDate, setNewDate] = useState("")
+    const [newVenue, setNewVenue] = useState("")
+    const [newAbout, setNewAbout] = useState("")
+    const [newCurator, setNewCurator] = useState("")
+    const [newDates, setNewDates] = useState("")
+    const [newType, setNewType] = useState<ExhibitionType>("solo")
+    const [newOtherArtists, setNewOtherArtists] = useState("")
+    const [newCoverImage, setNewCoverImage] = useState<File | null>(null)
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
+    const [newExhibitionImages, setNewExhibitionImages] = useState<File[]>([])
+    const [exhibitionImagePreviews, setExhibitionImagePreviews] = useState<string[]>([])
+    const [existingExhibitionImages, setExistingExhibitionImages] = useState<string[]>([])
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [selectedRemoveIds, setSelectedRemoveIds] = useState<Set<string>>(new Set())
     const [selectedAddIds, setSelectedAddIds] = useState<Set<string>>(new Set())
     const [availableArtworks, setAvailableArtworks] = useState<Artwork[]>([])
@@ -54,8 +65,17 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
     useEffect(() => {
         if (open && exhibition) {
             setNewName(exhibition.name)
-            setNewLocation(exhibition.location)
-            setNewDate(exhibition.date)
+            setNewVenue(exhibition.venue)
+            setNewAbout(exhibition.about)
+            setNewCurator(exhibition.curator)
+            setNewDates(exhibition.dates)
+            setNewType(exhibition.type as ExhibitionType)
+            setNewOtherArtists(exhibition.otherArtists || "")
+            setNewCoverImage(null)
+            setCoverImagePreview(exhibition.coverImage ? getImageUrl(exhibition.coverImage) : null)
+            setNewExhibitionImages([])
+            setExhibitionImagePreviews([])
+            setExistingExhibitionImages(exhibition.exhibitionImages || [])
             setSelectedRemoveIds(new Set())
             setSelectedAddIds(new Set())
             setSearchQuery("")
@@ -132,6 +152,112 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         setSelectedAddIds(new Set())
     }
 
+    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            if (!file.type.startsWith("image/")) {
+                toast.error("Please select an image file")
+                return
+            }
+            setNewCoverImage(file)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setCoverImagePreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const removeCoverImage = () => {
+        setNewCoverImage(null)
+        setCoverImagePreview(null)
+    }
+
+    const uploadCoverImage = async (): Promise<string | null | undefined> => {
+        if (!newCoverImage) return undefined // undefined means no change
+
+        setIsUploadingImage(true)
+        try {
+            const fileExt = newCoverImage.name.split(".").pop()
+            const fileName = `exhibition-${Date.now()}.${fileExt}`
+            const filePath = `exhibitions/${fileName}`
+
+            const { error: uploadError } = await supabase.storage
+                .from("artworks")
+                .upload(filePath, newCoverImage)
+
+            if (uploadError) {
+                throw uploadError
+            }
+
+            return filePath
+        } catch (error) {
+            console.error("Error uploading cover image:", error)
+            toast.error("Failed to upload cover image")
+            return null
+        } finally {
+            setIsUploadingImage(false)
+        }
+    }
+
+    const handleExhibitionImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || [])
+        if (files.length === 0) return
+
+        const validFiles = files.filter(file => file.type.startsWith("image/"))
+        if (validFiles.length !== files.length) {
+            toast.error("Some files were not images and were skipped")
+        }
+
+        setNewExhibitionImages(prev => [...prev, ...validFiles])
+
+        validFiles.forEach(file => {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setExhibitionImagePreviews(prev => [...prev, reader.result as string])
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+
+    const removeNewExhibitionImage = (index: number) => {
+        setNewExhibitionImages(prev => prev.filter((_, i) => i !== index))
+        setExhibitionImagePreviews(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const removeExistingExhibitionImage = (imagePath: string) => {
+        setExistingExhibitionImages(prev => prev.filter(path => path !== imagePath))
+    }
+
+    const uploadExhibitionImages = async (): Promise<string[]> => {
+        if (newExhibitionImages.length === 0) return []
+
+        const uploadedPaths: string[] = []
+
+        for (const [index, file] of newExhibitionImages.entries()) {
+            try {
+                const fileExt = file.name.split(".").pop()
+                const fileName = `exhibition-img-${Date.now()}-${index}.${fileExt}`
+                const filePath = `exhibitions/${fileName}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from("artworks")
+                    .upload(filePath, file)
+
+                if (uploadError) {
+                    throw uploadError
+                }
+
+                uploadedPaths.push(filePath)
+            } catch (error) {
+                console.error(`Error uploading exhibition image ${index}:`, error)
+                toast.error(`Failed to upload image ${index + 1}`)
+            }
+        }
+
+        return uploadedPaths
+    }
+
     const filteredAvailableArtworks = useMemo(() => {
         if (!searchQuery.trim()) {
             return availableArtworks
@@ -151,34 +277,72 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         if (!exhibition) return
 
         const trimmedName = newName.trim()
-        const trimmedLocation = newLocation.trim()
+        const trimmedVenue = newVenue.trim()
+        const trimmedAbout = newAbout.trim()
+        const trimmedCurator = newCurator.trim()
+        const trimmedOtherArtists = newOtherArtists.trim()
 
-        if (!trimmedName || !trimmedLocation || !newDate) {
+        if (!trimmedName || !trimmedVenue || !trimmedAbout || !trimmedCurator || !newDates) {
             toast.error("All exhibition fields are required")
             return
         }
 
-        if (
-            trimmedName === exhibition.name &&
-            trimmedLocation === exhibition.location &&
-            newDate === exhibition.date
-        ) {
+        if (newType === "group" && !trimmedOtherArtists) {
+            toast.error("Please enter other artists for group exhibition")
+            return
+        }
+
+        const hasChanges =
+            trimmedName !== exhibition.name ||
+            trimmedVenue !== exhibition.venue ||
+            trimmedAbout !== exhibition.about ||
+            trimmedCurator !== exhibition.curator ||
+            newDates !== exhibition.dates ||
+            newType !== exhibition.type ||
+            trimmedOtherArtists !== (exhibition.otherArtists || "") ||
+            newCoverImage !== null ||
+            (coverImagePreview === null && exhibition.coverImage !== null) ||
+            newExhibitionImages.length > 0 ||
+            existingExhibitionImages.length !== exhibition.exhibitionImages.length
+
+        if (!hasChanges) {
             toast.error("Please make changes to update the exhibition")
             return
         }
 
         setIsSaving(true)
         try {
+            // Upload new cover image and exhibition images if provided
+            const uploadedImagePath = await uploadCoverImage()
+            const finalCoverImage = uploadedImagePath !== undefined
+                ? uploadedImagePath
+                : (coverImagePreview === null ? null : exhibition.coverImage)
+
+            const uploadedExhibitionImages = await uploadExhibitionImages()
+            const finalExhibitionImages = [...existingExhibitionImages, ...uploadedExhibitionImages]
+
             await updateExhibition(
                 {
                     name: exhibition.name,
-                    location: exhibition.location,
-                    date: exhibition.date,
+                    venue: exhibition.venue,
+                    about: exhibition.about,
+                    curator: exhibition.curator,
+                    dates: exhibition.dates,
+                    coverImage: exhibition.coverImage,
+                    exhibitionImages: exhibition.exhibitionImages,
+                    type: exhibition.type as ExhibitionType,
+                    otherArtists: exhibition.otherArtists,
                 },
                 {
                     name: trimmedName,
-                    location: trimmedLocation,
-                    date: newDate,
+                    venue: trimmedVenue,
+                    about: trimmedAbout,
+                    curator: trimmedCurator,
+                    dates: newDates,
+                    coverImage: finalCoverImage,
+                    exhibitionImages: finalExhibitionImages,
+                    type: newType,
+                    otherArtists: newType === "group" ? trimmedOtherArtists : null,
                 }
             )
             toast.success("Exhibition updated successfully")
@@ -213,8 +377,14 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         try {
             await removeArtworksFromExhibition(Array.from(selectedRemoveIds), {
                 name: exhibition.name,
-                location: exhibition.location,
-                date: exhibition.date,
+                venue: exhibition.venue,
+                about: exhibition.about,
+                curator: exhibition.curator,
+                dates: exhibition.dates,
+                coverImage: exhibition.coverImage,
+                exhibitionImages: exhibition.exhibitionImages,
+                type: exhibition.type as ExhibitionType,
+                otherArtists: exhibition.otherArtists,
             })
             toast.success(`Removed ${selectedRemoveIds.size} artwork(s) from exhibition`)
             handleClose()
@@ -240,8 +410,14 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
         try {
             await addExhibitionToArtworks(Array.from(selectedAddIds), {
                 name: exhibition.name,
-                location: exhibition.location,
-                date: exhibition.date,
+                venue: exhibition.venue,
+                about: exhibition.about,
+                curator: exhibition.curator,
+                dates: exhibition.dates,
+                coverImage: exhibition.coverImage,
+                exhibitionImages: exhibition.exhibitionImages,
+                type: exhibition.type as ExhibitionType,
+                otherArtists: exhibition.otherArtists,
             })
             toast.success(`Added ${selectedAddIds.size} artwork(s) to "${exhibition.name}"`)
             handleClose()
@@ -280,7 +456,7 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                         <div className="flex items-center justify-between">
                             <h3 className="text-sm font-semibold">Exhibition Details</h3>
                         </div>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="exhibition-name">Name</Label>
                                 <Input
@@ -292,24 +468,174 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-location">Location</Label>
+                                <Label htmlFor="exhibition-venue">Venue</Label>
                                 <Input
-                                    id="exhibition-location"
-                                    value={newLocation}
-                                    onChange={(e) => setNewLocation(e.target.value)}
-                                    placeholder="Location"
+                                    id="exhibition-venue"
+                                    value={newVenue}
+                                    onChange={(e) => setNewVenue(e.target.value)}
+                                    placeholder="Venue"
                                     disabled={isSaving}
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-date">Date</Label>
+                                <Label htmlFor="exhibition-about">About</Label>
                                 <Input
-                                    id="exhibition-date"
-                                    type="date"
-                                    value={newDate}
-                                    onChange={(e) => setNewDate(e.target.value)}
+                                    id="exhibition-about"
+                                    value={newAbout}
+                                    onChange={(e) => setNewAbout(e.target.value)}
+                                    placeholder="Exhibition description"
                                     disabled={isSaving}
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-curator">Curator</Label>
+                                <Input
+                                    id="exhibition-curator"
+                                    value={newCurator}
+                                    onChange={(e) => setNewCurator(e.target.value)}
+                                    placeholder="Curator name"
+                                    disabled={isSaving}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-dates">Dates</Label>
+                                <Input
+                                    id="exhibition-dates"
+                                    value={newDates}
+                                    onChange={(e) => setNewDates(e.target.value)}
+                                    placeholder="e.g., Jan 15 - Feb 28, 2024"
+                                    disabled={isSaving}
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="cover-image">Cover Image</Label>
+                                {coverImagePreview ? (
+                                    <div className="relative">
+                                        <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                                            <Image
+                                                src={coverImagePreview}
+                                                alt="Cover preview"
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            className="mt-2"
+                                            onClick={removeCoverImage}
+                                            disabled={isSaving}
+                                        >
+                                            <IconX className="mr-2 h-4 w-4" />
+                                            Remove Image
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            id="cover-image"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleCoverImageChange}
+                                            disabled={isSaving}
+                                            className="cursor-pointer"
+                                        />
+                                        <IconUpload className="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-type">Exhibition Type</Label>
+                                <Select value={newType} onValueChange={(value: ExhibitionType) => setNewType(value)}>
+                                    <SelectTrigger id="exhibition-type">
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="solo">Solo</SelectItem>
+                                        <SelectItem value="group">Group</SelectItem>
+                                        <SelectItem value="online">Online</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {newType === "group" && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="other-artists">Other Artists</Label>
+                                    <Input
+                                        id="other-artists"
+                                        value={newOtherArtists}
+                                        onChange={(e) => setNewOtherArtists(e.target.value)}
+                                        placeholder="e.g., John Doe, Jane Smith"
+                                        disabled={isSaving}
+                                    />
+                                </div>
+                            )}
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-images">Exhibition Images</Label>
+                                <Input
+                                    id="exhibition-images"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleExhibitionImagesChange}
+                                    disabled={isSaving}
+                                    className="cursor-pointer"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Add more images of the exhibition space, installations, etc.
+                                </p>
+                                {(existingExhibitionImages.length > 0 || exhibitionImagePreviews.length > 0) && (
+                                    <div className="space-y-2">
+                                        <p className="text-sm font-medium">Current & New Images:</p>
+                                        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                                            {existingExhibitionImages.map((imagePath, index) => (
+                                                <div key={`existing-${index}`} className="relative group">
+                                                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                                                        <Image
+                                                            src={getImageUrl(imagePath) || ""}
+                                                            alt={`Exhibition image ${index + 1}`}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onClick={() => removeExistingExhibitionImage(imagePath)}
+                                                        disabled={isSaving}
+                                                    >
+                                                        <IconX className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                            {exhibitionImagePreviews.map((preview, index) => (
+                                                <div key={`new-${index}`} className="relative group">
+                                                    <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-primary">
+                                                        <Image
+                                                            src={preview}
+                                                            alt={`New exhibition image ${index + 1}`}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                    <Badge className="absolute top-1 left-1 text-xs">New</Badge>
+                                                    <Button
+                                                        type="button"
+                                                        variant="destructive"
+                                                        size="icon"
+                                                        className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                        onClick={() => removeNewExhibitionImage(index)}
+                                                        disabled={isSaving}
+                                                    >
+                                                        <IconX className="h-4 w-4" />
+                                                    </Button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
                         <Button
@@ -317,17 +643,18 @@ export function EditExhibition({ open, onOpenChange, exhibition }: EditExhibitio
                             onClick={handleUpdate}
                             disabled={
                                 isSaving ||
+                                isUploadingImage ||
                                 !newName.trim() ||
-                                !newLocation.trim() ||
-                                !newDate ||
-                                (newName === exhibition.name &&
-                                    newLocation === exhibition.location &&
-                                    newDate === exhibition.date)
+                                !newVenue.trim() ||
+                                !newAbout.trim() ||
+                                !newCurator.trim() ||
+                                !newDates ||
+                                (newType === "group" && !newOtherArtists.trim())
                             }
                             size="sm"
                         >
                             <IconEdit className="mr-2 h-4 w-4" />
-                            Update Exhibition
+                            {isUploadingImage ? "Uploading..." : "Update Exhibition"}
                         </Button>
                     </div>
 

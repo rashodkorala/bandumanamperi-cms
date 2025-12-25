@@ -1,10 +1,18 @@
 export type ArtworkStatus = "published" | "draft" | "archived"
 export type ArtworkAvailability = "available" | "sold" | "on_loan" | "private_collection" | "nfs"
 
+export type ExhibitionType = "solo" | "group" | "online"
+
 export interface ExhibitionHistory {
   name: string
-  location: string
-  date: string
+  venue: string
+  about: string
+  curator: string
+  dates: string
+  coverImage: string | null
+  exhibitionImages: string[]
+  type: ExhibitionType
+  otherArtists: string | null
 }
 
 // Database schema (snake_case)

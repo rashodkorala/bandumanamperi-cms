@@ -15,8 +15,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { IconPlus, IconSearch, IconCheck, IconCalendar } from "@tabler/icons-react"
-import type { Artwork } from "@/lib/types/artwork"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { IconPlus, IconSearch, IconCheck, IconCalendar, IconUpload, IconX } from "@tabler/icons-react"
+import type { Artwork, ExhibitionType } from "@/lib/types/artwork"
 import { addExhibitionToArtworks } from "@/lib/actions/exhibitions"
 import { getArtworks } from "@/lib/actions/artworks"
 import { cn } from "@/lib/utils"
@@ -36,8 +37,17 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
     const [artworks, setArtworks] = useState<Artwork[]>([])
     const [selectedArtworkIds, setSelectedArtworkIds] = useState<Set<string>>(new Set())
     const [exhibitionName, setExhibitionName] = useState("")
-    const [exhibitionLocation, setExhibitionLocation] = useState("")
-    const [exhibitionDate, setExhibitionDate] = useState("")
+    const [exhibitionVenue, setExhibitionVenue] = useState("")
+    const [exhibitionAbout, setExhibitionAbout] = useState("")
+    const [exhibitionCurator, setExhibitionCurator] = useState("")
+    const [exhibitionDates, setExhibitionDates] = useState("")
+    const [exhibitionType, setExhibitionType] = useState<ExhibitionType>("solo")
+    const [otherArtists, setOtherArtists] = useState("")
+    const [coverImage, setCoverImage] = useState<File | null>(null)
+    const [coverImagePreview, setCoverImagePreview] = useState<string | null>(null)
+    const [exhibitionImages, setExhibitionImages] = useState<File[]>([])
+    const [exhibitionImagePreviews, setExhibitionImagePreviews] = useState<string[]>([])
+    const [isUploadingImage, setIsUploadingImage] = useState(false)
     const [searchQuery, setSearchQuery] = useState("")
     const [isLoading, setIsLoading] = useState(false)
     const [isSaving, setIsSaving] = useState(false)
@@ -92,6 +102,108 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
         setSelectedArtworkIds(new Set())
     }
 
+    const handleCoverImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (file) {
+            if (!file.type.startsWith("image/")) {
+                toast.error("Please select an image file")
+                return
+            }
+            setCoverImage(file)
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setCoverImagePreview(reader.result as string)
+            }
+            reader.readAsDataURL(file)
+        }
+    }
+
+    const removeCoverImage = () => {
+        setCoverImage(null)
+        setCoverImagePreview(null)
+    }
+
+    const uploadCoverImage = async (): Promise<string | null> => {
+        if (!coverImage) return null
+
+        setIsUploadingImage(true)
+        try {
+            const fileExt = coverImage.name.split(".").pop()
+            const fileName = `exhibition-cover-${Date.now()}.${fileExt}`
+            const filePath = `exhibitions/${fileName}`
+
+            const { error: uploadError } = await supabase.storage
+                .from("artworks")
+                .upload(filePath, coverImage)
+
+            if (uploadError) {
+                throw uploadError
+            }
+
+            return filePath
+        } catch (error) {
+            console.error("Error uploading cover image:", error)
+            toast.error("Failed to upload cover image")
+            return null
+        } finally {
+            setIsUploadingImage(false)
+        }
+    }
+
+    const handleExhibitionImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = Array.from(e.target.files || [])
+        if (files.length === 0) return
+
+        const validFiles = files.filter(file => file.type.startsWith("image/"))
+        if (validFiles.length !== files.length) {
+            toast.error("Some files were not images and were skipped")
+        }
+
+        setExhibitionImages(prev => [...prev, ...validFiles])
+
+        validFiles.forEach(file => {
+            const reader = new FileReader()
+            reader.onloadend = () => {
+                setExhibitionImagePreviews(prev => [...prev, reader.result as string])
+            }
+            reader.readAsDataURL(file)
+        })
+    }
+
+    const removeExhibitionImage = (index: number) => {
+        setExhibitionImages(prev => prev.filter((_, i) => i !== index))
+        setExhibitionImagePreviews(prev => prev.filter((_, i) => i !== index))
+    }
+
+    const uploadExhibitionImages = async (): Promise<string[]> => {
+        if (exhibitionImages.length === 0) return []
+
+        const uploadedPaths: string[] = []
+
+        for (const [index, file] of exhibitionImages.entries()) {
+            try {
+                const fileExt = file.name.split(".").pop()
+                const fileName = `exhibition-img-${Date.now()}-${index}.${fileExt}`
+                const filePath = `exhibitions/${fileName}`
+
+                const { error: uploadError } = await supabase.storage
+                    .from("artworks")
+                    .upload(filePath, file)
+
+                if (uploadError) {
+                    throw uploadError
+                }
+
+                uploadedPaths.push(filePath)
+            } catch (error) {
+                console.error(`Error uploading exhibition image ${index}:`, error)
+                toast.error(`Failed to upload image ${index + 1}`)
+            }
+        }
+
+        return uploadedPaths
+    }
+
     const handleSave = async () => {
         if (selectedArtworkIds.size === 0) {
             toast.error("Please select at least one artwork")
@@ -103,22 +215,47 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
             return
         }
 
-        if (!exhibitionLocation.trim()) {
-            toast.error("Please enter an exhibition location")
+        if (!exhibitionVenue.trim()) {
+            toast.error("Please enter an exhibition venue")
             return
         }
 
-        if (!exhibitionDate) {
-            toast.error("Please select an exhibition date")
+        if (!exhibitionAbout.trim()) {
+            toast.error("Please enter exhibition about/description")
+            return
+        }
+
+        if (!exhibitionCurator.trim()) {
+            toast.error("Please enter exhibition curator")
+            return
+        }
+
+        if (!exhibitionDates) {
+            toast.error("Please enter exhibition dates")
+            return
+        }
+
+        if (exhibitionType === "group" && !otherArtists.trim()) {
+            toast.error("Please enter other artists for group exhibition")
             return
         }
 
         setIsSaving(true)
         try {
+            // Upload cover image and exhibition images if provided
+            const coverImagePath = await uploadCoverImage()
+            const exhibitionImagePaths = await uploadExhibitionImages()
+
             await addExhibitionToArtworks(Array.from(selectedArtworkIds), {
                 name: exhibitionName.trim(),
-                location: exhibitionLocation.trim(),
-                date: exhibitionDate,
+                venue: exhibitionVenue.trim(),
+                about: exhibitionAbout.trim(),
+                curator: exhibitionCurator.trim(),
+                dates: exhibitionDates,
+                coverImage: coverImagePath,
+                exhibitionImages: exhibitionImagePaths,
+                type: exhibitionType,
+                otherArtists: exhibitionType === "group" ? otherArtists.trim() : null,
             })
             toast.success(
                 `Added exhibition "${exhibitionName}" to ${selectedArtworkIds.size} artwork(s)`
@@ -136,8 +273,16 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
         if (!isSaving) {
             setSelectedArtworkIds(new Set())
             setExhibitionName("")
-            setExhibitionLocation("")
-            setExhibitionDate("")
+            setExhibitionVenue("")
+            setExhibitionAbout("")
+            setExhibitionCurator("")
+            setExhibitionDates("")
+            setExhibitionType("solo")
+            setOtherArtists("")
+            setCoverImage(null)
+            setCoverImagePreview(null)
+            setExhibitionImages([])
+            setExhibitionImagePreviews([])
             setSearchQuery("")
             onOpenChange(false)
         }
@@ -173,7 +318,7 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                     {/* Exhibition Details */}
                     <div className="mb-6 space-y-4 rounded-lg border p-4">
                         <h3 className="text-sm font-semibold">Exhibition Details</h3>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+                        <div className="grid grid-cols-1 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="exhibition-name">Exhibition Name *</Label>
                                 <Input
@@ -184,22 +329,143 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-location">Location *</Label>
+                                <Label htmlFor="exhibition-venue">Venue *</Label>
                                 <Input
-                                    id="exhibition-location"
-                                    value={exhibitionLocation}
-                                    onChange={(e) => setExhibitionLocation(e.target.value)}
+                                    id="exhibition-venue"
+                                    value={exhibitionVenue}
+                                    onChange={(e) => setExhibitionVenue(e.target.value)}
                                     placeholder="e.g., Gallery XYZ, New York"
                                 />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="exhibition-date">Date *</Label>
+                                <Label htmlFor="exhibition-about">About *</Label>
                                 <Input
-                                    id="exhibition-date"
-                                    type="date"
-                                    value={exhibitionDate}
-                                    onChange={(e) => setExhibitionDate(e.target.value)}
+                                    id="exhibition-about"
+                                    value={exhibitionAbout}
+                                    onChange={(e) => setExhibitionAbout(e.target.value)}
+                                    placeholder="Exhibition description"
                                 />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-curator">Curator *</Label>
+                                <Input
+                                    id="exhibition-curator"
+                                    value={exhibitionCurator}
+                                    onChange={(e) => setExhibitionCurator(e.target.value)}
+                                    placeholder="Curator name"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-dates">Dates *</Label>
+                                <Input
+                                    id="exhibition-dates"
+                                    value={exhibitionDates}
+                                    onChange={(e) => setExhibitionDates(e.target.value)}
+                                    placeholder="e.g., Jan 15 - Feb 28, 2024"
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-type">Exhibition Type *</Label>
+                                <Select value={exhibitionType} onValueChange={(value: ExhibitionType) => setExhibitionType(value)}>
+                                    <SelectTrigger id="exhibition-type">
+                                        <SelectValue placeholder="Select type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="solo">Solo</SelectItem>
+                                        <SelectItem value="group">Group</SelectItem>
+                                        <SelectItem value="online">Online</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            {exhibitionType === "group" && (
+                                <div className="space-y-2">
+                                    <Label htmlFor="other-artists">Other Artists *</Label>
+                                    <Input
+                                        id="other-artists"
+                                        value={otherArtists}
+                                        onChange={(e) => setOtherArtists(e.target.value)}
+                                        placeholder="e.g., John Doe, Jane Smith"
+                                    />
+                                </div>
+                            )}
+                            <div className="space-y-2">
+                                <Label htmlFor="cover-image">Cover Image</Label>
+                                {coverImagePreview ? (
+                                    <div className="relative">
+                                        <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                                            <Image
+                                                src={coverImagePreview}
+                                                alt="Cover preview"
+                                                fill
+                                                className="object-cover"
+                                            />
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            size="sm"
+                                            className="mt-2"
+                                            onClick={removeCoverImage}
+                                            disabled={isSaving}
+                                        >
+                                            <IconX className="mr-2 h-4 w-4" />
+                                            Remove Image
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center gap-2">
+                                        <Input
+                                            id="cover-image"
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleCoverImageChange}
+                                            disabled={isSaving}
+                                            className="cursor-pointer"
+                                        />
+                                        <IconUpload className="h-4 w-4 text-muted-foreground" />
+                                    </div>
+                                )}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="exhibition-images">Exhibition Images</Label>
+                                <Input
+                                    id="exhibition-images"
+                                    type="file"
+                                    accept="image/*"
+                                    multiple
+                                    onChange={handleExhibitionImagesChange}
+                                    disabled={isSaving}
+                                    className="cursor-pointer"
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                    Upload multiple images of the exhibition space, installations, etc.
+                                </p>
+                                {exhibitionImagePreviews.length > 0 && (
+                                    <div className="grid grid-cols-2 gap-2 mt-2 sm:grid-cols-3">
+                                        {exhibitionImagePreviews.map((preview, index) => (
+                                            <div key={index} className="relative group">
+                                                <div className="relative aspect-video w-full overflow-hidden rounded-lg border">
+                                                    <Image
+                                                        src={preview}
+                                                        alt={`Exhibition image ${index + 1}`}
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </div>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    onClick={() => removeExhibitionImage(index)}
+                                                    disabled={isSaving}
+                                                >
+                                                    <IconX className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -356,8 +622,11 @@ export function AddExhibition({ open, onOpenChange }: AddExhibitionProps) {
                                     isSaving ||
                                     selectedArtworkIds.size === 0 ||
                                     !exhibitionName.trim() ||
-                                    !exhibitionLocation.trim() ||
-                                    !exhibitionDate
+                                    !exhibitionVenue.trim() ||
+                                    !exhibitionAbout.trim() ||
+                                    !exhibitionCurator.trim() ||
+                                    !exhibitionDates ||
+                                    (exhibitionType === "group" && !otherArtists.trim())
                                 }
                             >
                                 {isSaving ? (

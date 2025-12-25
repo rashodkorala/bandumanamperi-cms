@@ -69,7 +69,9 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
         return exhibitions.filter(
             (exhibition) =>
                 exhibition.name.toLowerCase().includes(query) ||
-                exhibition.location.toLowerCase().includes(query) ||
+                exhibition.venue.toLowerCase().includes(query) ||
+                exhibition.about.toLowerCase().includes(query) ||
+                exhibition.curator.toLowerCase().includes(query) ||
                 exhibition.artworks.some(
                     (artwork) =>
                         artwork.title?.toLowerCase().includes(query) ||
@@ -139,16 +141,22 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
         try {
             await deleteExhibition({
                 name: exhibition.name,
-                location: exhibition.location,
-                date: exhibition.date,
+                venue: exhibition.venue,
+                about: exhibition.about,
+                curator: exhibition.curator,
+                dates: exhibition.dates,
+                coverImage: exhibition.coverImage,
+                exhibitionImages: exhibition.exhibitionImages,
+                type: exhibition.type as any,
+                otherArtists: exhibition.otherArtists,
             })
             setExhibitions((prev) =>
                 prev.filter(
                     (e) =>
                         !(
                             e.name === exhibition.name &&
-                            e.location === exhibition.location &&
-                            e.date === exhibition.date
+                            e.venue === exhibition.venue &&
+                            e.dates === exhibition.dates
                         )
                 )
             )
@@ -315,26 +323,36 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                     const draftCount = artworks.filter((a) => a.status === "draft").length
 
                                     return (
-                                        <Card key={`${exhibition.name}-${exhibition.location}-${exhibition.date}`}>
+                                        <Card key={`${exhibition.name}-${exhibition.venue}-${exhibition.dates}`}>
                                             <CardHeader>
                                                 <div className="flex items-start justify-between">
                                                     <div className="flex-1">
                                                         <CardTitle className="text-xl flex items-center gap-2">
                                                             {exhibition.name}
+                                                            <Badge variant={exhibition.type === "solo" ? "default" : exhibition.type === "group" ? "secondary" : "outline"} className="text-xs">
+                                                                {exhibition.type}
+                                                            </Badge>
                                                         </CardTitle>
                                                         <CardDescription className="mt-1 space-y-1">
                                                             <div className="flex items-center gap-2">
                                                                 <IconMapPin className="h-3.5 w-3.5" />
-                                                                {exhibition.location}
+                                                                {exhibition.venue}
                                                             </div>
                                                             <div className="flex items-center gap-2">
                                                                 <IconCalendar className="h-3.5 w-3.5" />
-                                                                {new Date(exhibition.date).toLocaleDateString("en-US", {
-                                                                    year: "numeric",
-                                                                    month: "long",
-                                                                    day: "numeric",
-                                                                })}
+                                                                {exhibition.dates}
                                                             </div>
+                                                            <div className="mt-2 text-sm">
+                                                                {exhibition.about}
+                                                            </div>
+                                                            <div className="text-sm">
+                                                                <span className="font-medium">Curator:</span> {exhibition.curator}
+                                                            </div>
+                                                            {exhibition.otherArtists && (
+                                                                <div className="text-sm">
+                                                                    <span className="font-medium">Other Artists:</span> {exhibition.otherArtists}
+                                                                </div>
+                                                            )}
                                                             <div className="mt-2">
                                                                 {artworks.length} artwork{artworks.length !== 1 ? "s" : ""}
                                                                 {publishedCount > 0 && (
@@ -372,7 +390,37 @@ const Exhibitions = ({ initialExhibitions }: ExhibitionsProps) => {
                                                     </DropdownMenu>
                                                 </div>
                                             </CardHeader>
+                                            {exhibition.coverImage && (
+                                                <div className="px-6 pb-4">
+                                                    <div className="relative aspect-[21/9] w-full overflow-hidden rounded-lg">
+                                                        <Image
+                                                            src={getImageUrl(exhibition.coverImage) || ""}
+                                                            alt={`${exhibition.name} cover`}
+                                                            fill
+                                                            className="object-cover"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            )}
+                                            {exhibition.exhibitionImages && exhibition.exhibitionImages.length > 0 && (
+                                                <div className="px-6 pb-4">
+                                                    <h4 className="text-sm font-semibold mb-2">Exhibition Images</h4>
+                                                    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
+                                                        {exhibition.exhibitionImages.map((imagePath, index) => (
+                                                            <div key={index} className="relative aspect-video overflow-hidden rounded-lg border">
+                                                                <Image
+                                                                    src={getImageUrl(imagePath) || ""}
+                                                                    alt={`${exhibition.name} image ${index + 1}`}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                />
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div className="px-6 pb-6">
+                                                <h4 className="text-sm font-semibold mb-3">Artworks in Exhibition</h4>
                                                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                                                     {artworks.map((artwork) => {
                                                         const imageUrl = artwork.thumbnailPath
