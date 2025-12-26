@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type {
   Artwork,
   ArtworkDB,
@@ -148,17 +149,10 @@ export async function getArtworkBySlug(slug: string): Promise<Artwork | null> {
 }
 
 export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
-
-  // Verify user is authenticated
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error("Unauthorized: You must be logged in to create artworks")
-  }
 
   const { data, error } = await supabase
     .from("artworks")
@@ -206,17 +200,10 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
 export async function updateArtwork(
   artwork: ArtworkUpdate
 ): Promise<Artwork> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
-
-  // Verify user is authenticated
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser()
-
-  if (authError || !user) {
-    throw new Error("Unauthorized: You must be logged in to update artworks")
-  }
 
   const { id, ...updates } = artwork
 
@@ -266,6 +253,9 @@ export async function updateArtwork(
 }
 
 export async function deleteArtwork(id: string): Promise<void> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
 
   // Verify user is authenticated

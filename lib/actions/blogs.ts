@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type { Blog, BlogDB, BlogInsert, BlogUpdate } from "@/lib/types/blog"
 
 function transformBlog(blog: BlogDB): Blog {
@@ -37,15 +38,10 @@ function slugify(text: string): string {
 }
 
 export async function getBlogs(status?: string): Promise<Blog[]> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   let query = supabase
     .from("blogs")
@@ -95,15 +91,10 @@ export async function getBlog(id: string): Promise<Blog | null> {
 }
 
 export async function getBlogBySlug(slug: string): Promise<Blog | null> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("blogs")
@@ -123,15 +114,10 @@ export async function getBlogBySlug(slug: string): Promise<Blog | null> {
 }
 
 export async function createBlog(blog: BlogInsert): Promise<Blog> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const slug = blog.slug || slugify(blog.title)
 
@@ -166,15 +152,10 @@ export async function createBlog(blog: BlogInsert): Promise<Blog> {
 }
 
 export async function updateBlog(blog: BlogUpdate): Promise<Blog> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const updateData: Partial<{
     title: string
@@ -227,15 +208,10 @@ export async function updateBlog(blog: BlogUpdate): Promise<Blog> {
 }
 
 export async function deleteBlog(id: string): Promise<void> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { error } = await supabase
     .from("blogs")

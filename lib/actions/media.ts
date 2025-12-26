@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type { MediaItem, MediaDB, MediaInsert, MediaUpdate } from "@/lib/types/media"
 
 function transformMedia(media: MediaDB): MediaItem {
@@ -24,15 +25,10 @@ function transformMedia(media: MediaDB): MediaItem {
 }
 
 export async function getMedia(folder?: string): Promise<MediaItem[]> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   let query = supabase
     .from("media")
@@ -54,15 +50,10 @@ export async function getMedia(folder?: string): Promise<MediaItem[]> {
 }
 
 export async function getMediaByType(fileType: string): Promise<MediaItem[]> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("media")
@@ -79,15 +70,10 @@ export async function getMediaByType(fileType: string): Promise<MediaItem[]> {
 }
 
 export async function getMediaItem(id: string): Promise<MediaItem | null> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("media")
@@ -107,15 +93,10 @@ export async function getMediaItem(id: string): Promise<MediaItem | null> {
 }
 
 export async function createMedia(media: MediaInsert): Promise<MediaItem> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("media")
@@ -144,15 +125,10 @@ export async function createMedia(media: MediaInsert): Promise<MediaItem> {
 }
 
 export async function updateMedia(media: MediaUpdate): Promise<MediaItem> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from("media")
@@ -182,15 +158,10 @@ export async function updateMedia(media: MediaUpdate): Promise<MediaItem> {
 }
 
 export async function deleteMedia(id: string): Promise<void> {
-  const supabase = await createClient()
+  // Verify authentication
+  const user = await requireAuth()
   
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
+  const supabase = await createClient()
 
   const { error } = await supabase
     .from("media")

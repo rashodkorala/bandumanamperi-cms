@@ -35,3 +35,4 @@ CREATE POLICY IF NOT EXISTS "Allow authenticated deletes"
     AND auth.role() = 'authenticated'
   );
 
+

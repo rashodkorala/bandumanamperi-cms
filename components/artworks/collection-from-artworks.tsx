@@ -350,3 +350,4 @@ export function CollectionFromArtworks({ open, onOpenChange }: CollectionFromArt
   )
 }
 
+

@@ -6,3 +6,4 @@ export default async function ExhibitionsPage() {
   return <Exhibitions initialExhibitions={exhibitions} />
 }
 
+

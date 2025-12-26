@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type { Page, PageDB, PageInsert, PageUpdate, PageContentType } from "@/lib/types/page"
 
 function transformPage(page: PageDB): Page {
@@ -235,15 +236,10 @@ ${contentType === "markdown" ? content : `# ${pageData.title}\n\n${content}`}
 }
 
 export async function createPage(page: PageInsert): Promise<Page> {
+  // Verify authentication
+  const user = await requireAuth()
+  
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
 
   const slug = page.slug || slugify(page.title)
 
@@ -310,15 +306,10 @@ export async function createPage(page: PageInsert): Promise<Page> {
 }
 
 export async function updatePage(page: PageUpdate): Promise<Page> {
+  // Verify authentication
+  const user = await requireAuth()
+  
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
 
   // Get existing page data to merge with updates
   const { data: existingPage } = await supabase
@@ -428,15 +419,10 @@ export async function updatePage(page: PageUpdate): Promise<Page> {
 }
 
 export async function deletePage(id: string): Promise<void> {
+  // Verify authentication
+  const user = await requireAuth()
+  
   const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    throw new Error("Unauthorized")
-  }
 
   const { error } = await supabase
     .from("pages")

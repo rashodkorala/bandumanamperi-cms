@@ -171,3 +171,4 @@ Should return 4 policies.
 | `exhibitions_storage_complete.sql` | Complete setup | ✅ Yes |
 | `exhibitions_schema.sql` | Database schema | ❌ No |
 
+

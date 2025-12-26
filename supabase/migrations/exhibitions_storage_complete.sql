@@ -83,3 +83,4 @@ All exhibition images are public-readable but require authentication to modify.'
 -- Verify policies were created:
 -- SELECT * FROM pg_policies WHERE tablename = 'objects' AND policyname LIKE '%exhibition%';
 
+

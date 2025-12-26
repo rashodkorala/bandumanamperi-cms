@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type { Artwork, ArtworkDB, ExhibitionHistory } from "@/lib/types/artwork"
 
 function transformArtwork(artwork: ArtworkDB): Artwork {
@@ -122,17 +123,10 @@ export async function addExhibitionToArtworks(
     artworkIds: string[],
     exhibition: Omit<ExhibitionHistory, "id">
 ): Promise<void> {
+    // Verify authentication
+    await requireAuth()
+    
     const supabase = await createClient()
-
-    // Verify user is authenticated
-    const {
-        data: { user },
-        error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-        throw new Error("Unauthorized: You must be logged in to add exhibitions")
-    }
 
     if (artworkIds.length === 0) {
         throw new Error("No artworks selected")
@@ -192,17 +186,10 @@ export async function updateExhibition(
     oldExhibition: ExhibitionHistory,
     newExhibition: ExhibitionHistory
 ): Promise<void> {
+    // Verify authentication
+    await requireAuth()
+    
     const supabase = await createClient()
-
-    // Verify user is authenticated
-    const {
-        data: { user },
-        error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-        throw new Error("Unauthorized: You must be logged in to update exhibitions")
-    }
 
     if (!newExhibition.name.trim() || !newExhibition.venue.trim() || !newExhibition.dates) {
         throw new Error("Exhibition name, venue, and dates are required")
@@ -252,17 +239,10 @@ export async function updateExhibition(
  * Delete an exhibition from all artworks
  */
 export async function deleteExhibition(exhibition: ExhibitionHistory): Promise<void> {
+    // Verify authentication
+    await requireAuth()
+    
     const supabase = await createClient()
-
-    // Verify user is authenticated
-    const {
-        data: { user },
-        error: authError,
-    } = await supabase.auth.getUser()
-
-    if (authError || !user) {
-        throw new Error("Unauthorized: You must be logged in to delete exhibitions")
-    }
 
     // Get all artworks with this exhibition
     const { data, error } = await supabase

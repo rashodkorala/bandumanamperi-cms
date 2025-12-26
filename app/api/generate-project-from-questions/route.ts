@@ -1,7 +1,17 @@
 import { NextRequest, NextResponse } from "next/server"
+import { verifyApiAuth } from "@/lib/auth/verify-auth"
 
 export async function POST(request: NextRequest) {
   try {
+    // Verify authentication
+    const { user, error: authError } = await verifyApiAuth(request)
+    if (authError || !user) {
+      return NextResponse.json(
+        { error: authError || "Unauthorized" },
+        { status: 401 }
+      )
+    }
+
     const body = await request.json()
     const {
       projectName,

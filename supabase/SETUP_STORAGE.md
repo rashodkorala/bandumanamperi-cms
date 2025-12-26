@@ -132,3 +132,4 @@ After setup, verify the bucket works:
 - Check that "Public read access" policy exists
 - Verify the file was uploaded successfully
 
+

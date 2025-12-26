@@ -265,3 +265,4 @@ See `lib/actions/performances.ts` for all available server actions:
 - `getPerformancesByType(type)` - Get by type
 - `searchPerformances(query)` - Search performances
 
+

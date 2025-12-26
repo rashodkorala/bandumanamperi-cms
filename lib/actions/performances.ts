@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { createClient } from "@/lib/supabase/server"
+import { requireAuth } from "@/lib/auth/verify-auth"
 import type {
   Performance,
   PerformanceDB,
@@ -111,6 +112,9 @@ export async function getPublishedPerformances(): Promise<Performance[]> {
 export async function createPerformance(
   performance: PerformanceInsert
 ): Promise<Performance> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
 
   const dbData = appToDB(performance)
@@ -136,6 +140,9 @@ export async function createPerformance(
 export async function updatePerformance(
   performance: PerformanceUpdate
 ): Promise<Performance> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
 
   const { id, ...updates } = performance
@@ -164,6 +171,9 @@ export async function updatePerformance(
 
 // Delete a performance
 export async function deletePerformance(id: string): Promise<void> {
+  // Verify authentication
+  await requireAuth()
+  
   const supabase = await createClient()
 
   // Get the performance first to access media files
