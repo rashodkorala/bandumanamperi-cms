@@ -242,7 +242,17 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
   const handleAddExhibition = () => {
     setExhibitionHistory([
       ...exhibitionHistory,
-      { name: "", location: "", date: "" },
+      {
+        name: "",
+        venue: "",
+        dates: "",
+        about: "",
+        curator: "",
+        coverImage: null,
+        exhibitionImages: [],
+        type: "group" as const,
+        otherArtists: null,
+      },
     ])
   }
 
@@ -383,7 +393,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         thumbnailPath,
         media: allMediaUrls,
         exhibitionHistory: exhibitionHistory.filter(
-          (e) => e.name && e.location && e.date
+          (e) => e.name && e.venue && e.dates
         ),
       }
 
@@ -924,18 +934,18 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                   }
                 />
                 <Input
-                  placeholder="Location"
-                  value={exhibition.location}
+                  placeholder="Venue"
+                  value={exhibition.venue}
                   onChange={(e) =>
-                    handleUpdateExhibition(index, "location", e.target.value)
+                    handleUpdateExhibition(index, "venue", e.target.value)
                   }
                 />
                 <Input
-                  type="date"
-                  placeholder="Date"
-                  value={exhibition.date}
+                  type="text"
+                  placeholder="Dates (e.g., Jan 2024)"
+                  value={exhibition.dates}
                   onChange={(e) =>
-                    handleUpdateExhibition(index, "date", e.target.value)
+                    handleUpdateExhibition(index, "dates", e.target.value)
                   }
                 />
                 <Button

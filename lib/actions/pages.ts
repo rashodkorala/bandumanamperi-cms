@@ -2,7 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { revalidatePath } from "next/cache"
-import type { Page, PageDB, PageInsert, PageUpdate } from "@/lib/types/page"
+import type { Page, PageDB, PageInsert, PageUpdate, PageContentType } from "@/lib/types/page"
 
 function transformPage(page: PageDB): Page {
   return {

@@ -89,8 +89,8 @@ export function ArtworkPreview({ artwork, open, onOpenChange }: ArtworkPreviewPr
                                         key={index}
                                         onClick={() => setSelectedImageIndex(index)}
                                         className={`relative aspect-square rounded-md overflow-hidden border-2 transition-colors ${selectedImageIndex === index
-                                                ? "border-primary"
-                                                : "border-transparent hover:border-muted-foreground"
+                                            ? "border-primary"
+                                            : "border-transparent hover:border-muted-foreground"
                                             }`}
                                     >
                                         <Image
@@ -239,8 +239,8 @@ export function ArtworkPreview({ artwork, open, onOpenChange }: ArtworkPreviewPr
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-sm">{exhibition.name}</CardTitle>
                                                 <CardDescription className="text-xs">
-                                                    {exhibition.location}
-                                                    {exhibition.date && ` • ${new Date(exhibition.date).toLocaleDateString()}`}
+                                                    {exhibition.venue}
+                                                    {exhibition.dates && ` • ${exhibition.dates}`}
                                                 </CardDescription>
                                             </CardHeader>
                                         </Card>

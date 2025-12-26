@@ -139,7 +139,7 @@ export async function updatePerformance(
   const supabase = await createClient()
 
   const { id, ...updates } = performance
-  const dbData = appToDB(updates)
+  const dbData = appToDB(updates as PerformanceInsert)
 
   const { data, error } = await supabase
     .from("performances")
