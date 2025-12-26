@@ -34,9 +34,9 @@ export default async function DashboardLayout({
             }
             className="bg-[#1a1a1a] text-white"
         >
-            <AppSidebar variant="inset" collapsible="offcanvas" className="border-none" />
+            <AppSidebar variant="inset" collapsible="offcanvas" className="border-none rounded-xl shadow-sm "  />
             <SidebarInset>
-                <main className="@container/main flex flex-1 flex-col bg-background rounded-2xl">
+                <main className="@container/main flex flex-1 flex-col bg-background rounded-xl">
                     <SiteHeader />
                     {children}
                 </main>

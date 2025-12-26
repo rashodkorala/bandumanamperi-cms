@@ -12,10 +12,14 @@ import {
   IconBook,
   IconFolders,
   IconCalendar,
+  IconMicrophone,
+  IconFileText,
+  IconPlus,
+  IconSearch,
+  IconLifebuoy,
 } from "@tabler/icons-react"
 
-import { NavMain } from "@/components/nav-main"
-import { NavSecondary } from "@/components/nav-secondary"
+import { NavGroup } from "@/components/nav-group"
 import { NavUser } from "@/components/nav-user"
 import {
   Sidebar,
@@ -25,16 +29,27 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarSeparator,
 } from "@/components/ui/sidebar"
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 // import Image from "next/image"
 // import logo from "@/public/images/logo.jpg"
+
 const data = {
-  navMain: [
+  main: [
     {
       title: "Dashboard",
       url: "/protected/dashboard",
       icon: IconDashboard,
     },
+    {
+      title: "Analytics",
+      url: "/protected/analytics",
+      icon: IconChartBar,
+    },
+  ],
+  portfolio: [
     {
       title: "Artworks",
       url: "/protected/artworks",
@@ -51,10 +66,12 @@ const data = {
       icon: IconCalendar,
     },
     {
-      title: "Photos",
-      url: "/protected/photos",
-      icon: IconPhoto,
+      title: "Performances",
+      url: "/protected/performances",
+      icon: IconMicrophone,
     },
+  ],
+  content: [
     {
       title: "Blog",
       url: "/protected/content",
@@ -64,53 +81,99 @@ const data = {
       title: "Pages",
       url: "/protected/pages",
       icon: IconListDetails,
-      comingSoon: true,
     },
     {
-      title: "Analytics",
-      url: "/protected/analytics",
-      icon: IconChartBar,
+      title: "Photos",
+      url: "/protected/photos",
+      icon: IconPhoto,
+    },
+    {
+      title: "Media Library",
+      url: "/protected/media",
+      icon: IconFileText,
     },
   ],
-  navSecondary: [
+  utilities: [
+    {
+      title: "Settings",
+      url: "/protected/settings",
+      icon: IconSettings,
+    },
     {
       title: "Documentation",
       url: "/docs",
       icon: IconBook,
     },
     {
-      title: "Settings",
-      url: "/protected/settings",
-      icon: IconSettings,
-    }
+      title: "Search",
+      url: "#",
+      icon: IconSearch,
+    },
   ],
 }
 
 export function AppSidebar({
-  collapsible = "offcanvas",
-  variant = "inset",
+  collapsible = "icon",
+  variant = "floating",
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible={collapsible} variant={variant} {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="border-b">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
-            >
-              {/* <Image src={logo} alt="logo" width={32} height={32} /> */}
-              <span className="text-base font-semibold">Rashod korala</span>
+            <SidebarMenuButton asChild size="lg" className="mb-2">
+              <Link href="/protected/dashboard">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                  <span className="text-lg font-bold">B</span>
+                </div>
+                <div className="flex flex-col gap-0.5 leading-none">
+                  <span className="font-semibold">Bandu Manamperi</span>
+                  <span className="text-xs text-sidebar-foreground/70">
+                    Portfolio CMS
+                  </span>
+                </div>
+              </Link>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild className="w-full bg-sidebar-accent hover:bg-sidebar-accent/80">
+              <Link href="/protected/artworks?action=create">
+                <IconPlus className="h-4 w-4" />
+                <span>Quick Create</span>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+
+      <SidebarContent className="px-2">
+        <div className="flex flex-col gap-1 py-2">
+          <NavGroup items={data.main} showLabel={false} />
+        </div>
+
+        <div className="flex flex-col gap-1 py-2">
+          <NavGroup title="Portfolio" items={data.portfolio} />
+        </div>
+
+        <div className="flex flex-col gap-1 py-2">
+          <NavGroup title="Content" items={data.content} />
+        </div>
       </SidebarContent>
-      <SidebarFooter>
+
+      <SidebarFooter className="mt-auto border-t">
+        <SidebarMenu>
+          {data.utilities.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title}>
+                <Link href={item.url}>
+                  <item.icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </Link>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
         <NavUser />
       </SidebarFooter>
     </Sidebar>
