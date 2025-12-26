@@ -88,8 +88,8 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                                             setIsLoading(true)
                                         }}
                                         className={`relative aspect-square rounded-md overflow-hidden border-2 transition-colors ${selectedImageIndex === index
-                                                ? "border-primary"
-                                                : "border-transparent hover:border-muted-foreground"
+                                            ? "border-primary"
+                                            : "border-transparent hover:border-muted-foreground"
                                             }`}
                                     >
                                         <Image
@@ -246,8 +246,8 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-base">{exhibition.name}</CardTitle>
                                                 <CardDescription>
-                                                    {exhibition.location}
-                                                    {exhibition.date && ` • ${new Date(exhibition.date).toLocaleDateString()}`}
+                                                    {exhibition.venue}
+                                                    {exhibition.dates && ` • ${exhibition.dates}`}
                                                 </CardDescription>
                                             </CardHeader>
                                         </Card>
