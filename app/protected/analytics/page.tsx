@@ -10,13 +10,27 @@ export default async function PostHogAnalyticsPage() {
   return (
     <div className="flex flex-grow flex-col">
       <div className="@container/main flex flex-1 flex-col gap-2">
-        <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+        <div className="flex flex-col gap-6 py-6 md:gap-8">
           {/* Header */}
           <div className="px-4 lg:px-6">
-            <h1 className="text-2xl font-semibold">PostHog Analytics</h1>
-            <p className="text-muted-foreground text-sm">
-              View analytics data from PostHog
-            </p>
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold tracking-tight">Analytics</h1>
+                <p className="text-muted-foreground mt-1">
+                  Real-time insights powered by PostHog
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <a
+                  href="https://app.posthog.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Open PostHog →
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Analytics Content */}
