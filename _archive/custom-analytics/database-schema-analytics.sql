@@ -31,8 +31,8 @@ CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics(created_at);
 CREATE INDEX IF NOT EXISTS idx_analytics_session_id ON analytics(session_id) WHERE session_id IS NOT NULL;
 CREATE INDEX IF NOT EXISTS idx_analytics_device_type ON analytics(device_type) WHERE device_type IS NOT NULL;
 
--- Create index on created_at for time-based queries (for partitioning/archiving old data)
-CREATE INDEX IF NOT EXISTS idx_analytics_created_at_date ON analytics(DATE(created_at));
+-- Note: idx_analytics_created_at (line 30) already handles date-based queries efficiently
+-- Removed idx_analytics_created_at_date to avoid IMMUTABLE function requirement
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE analytics ENABLE ROW LEVEL SECURITY;
