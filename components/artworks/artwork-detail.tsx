@@ -41,6 +41,7 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
     }
 
     const formatPrice = () => {
+        if (artwork.priceUponRequest) return "Price upon request"
         if (!artwork.price) return null
         const formatter = new Intl.NumberFormat("en-US", {
             style: "currency",
@@ -188,6 +189,15 @@ export function ArtworkDetail({ artwork }: ArtworkDetailProps) {
                                     <CardHeader className="pb-2">
                                         <CardDescription>Price</CardDescription>
                                         <CardTitle className="text-base">{formatPrice()}</CardTitle>
+                                    </CardHeader>
+                                </Card>
+                            )}
+
+                            {artwork.collectorName && (
+                                <Card>
+                                    <CardHeader className="pb-2">
+                                        <CardDescription>Collector</CardDescription>
+                                        <CardTitle className="text-base">{artwork.collectorName}</CardTitle>
                                     </CardHeader>
                                 </Card>
                             )}

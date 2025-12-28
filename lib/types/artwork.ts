@@ -39,6 +39,8 @@ export interface ArtworkDB {
   availability: ArtworkAvailability
   price: number | null
   currency: string
+  price_upon_request: boolean
+  collector_name: string | null
   sort_order: number
   thumbnail_path: string | null
   artist_notes: string | null
@@ -74,6 +76,8 @@ export interface Artwork {
   availability: ArtworkAvailability
   price: number | null
   currency: string
+  priceUponRequest: boolean
+  collectorName: string | null
   sortOrder: number
   thumbnailPath: string | null
   artistNotes: string | null
@@ -107,6 +111,8 @@ export interface ArtworkInsert {
   availability?: ArtworkAvailability
   price?: number | null
   currency?: string
+  priceUponRequest?: boolean
+  collectorName?: string | null
   sortOrder?: number
   thumbnailPath?: string | null
   artistNotes?: string | null

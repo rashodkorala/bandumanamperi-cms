@@ -77,6 +77,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
     availability: "available",
     price: null,
     currency: "USD",
+    priceUponRequest: false,
+    collectorName: null,
     sortOrder: 0,
     thumbnailPath: null,
     artistNotes: null,
@@ -118,6 +120,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         availability: artwork.availability,
         price: artwork.price,
         currency: artwork.currency,
+        priceUponRequest: artwork.priceUponRequest,
+        collectorName: artwork.collectorName,
         sortOrder: artwork.sortOrder,
         thumbnailPath: artwork.thumbnailPath,
         artistNotes: artwork.artistNotes,
@@ -154,6 +158,8 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
         availability: "available",
         price: null,
         currency: "USD",
+        priceUponRequest: false,
+        collectorName: null,
         sortOrder: 0,
         thumbnailPath: null,
         artistNotes: null,
@@ -764,6 +770,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                       price: e.target.value ? parseFloat(e.target.value) : null,
                     }))
                   }
+                  disabled={formData.priceUponRequest}
                 />
               </div>
               <div className="space-y-2">
@@ -773,6 +780,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, currency: value }))
                   }
+                  disabled={formData.priceUponRequest}
                 >
                   <SelectTrigger>
                     <SelectValue />
@@ -781,6 +789,7 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                     <SelectItem value="USD">USD</SelectItem>
                     <SelectItem value="EUR">EUR</SelectItem>
                     <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="LKR">LKR</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -797,6 +806,36 @@ export function ArtworkForm({ artwork, open, onOpenChange }: ArtworkFormProps) {
                     }))
                   }
                 />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="collectorName">Collector Name</Label>
+                <Input
+                  id="collectorName"
+                  value={formData.collectorName || ""}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      collectorName: e.target.value || null,
+                    }))
+                  }
+                  placeholder="Name of collector (if applicable)"
+                />
+              </div>
+              <div className="flex items-end pb-2">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="priceUponRequest"
+                    checked={formData.priceUponRequest}
+                    onCheckedChange={(checked) =>
+                      setFormData((prev) => ({ ...prev, priceUponRequest: !!checked }))
+                    }
+                  />
+                  <Label htmlFor="priceUponRequest" className="cursor-pointer">
+                    Price upon request
+                  </Label>
+                </div>
               </div>
             </div>
             <div className="space-y-2">

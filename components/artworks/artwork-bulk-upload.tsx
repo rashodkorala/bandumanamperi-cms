@@ -450,6 +450,7 @@ export function ArtworkBulkUpload({ open, onOpenChange }: ArtworkBulkUploadProps
                     <SelectItem value="USD">USD</SelectItem>
                     <SelectItem value="EUR">EUR</SelectItem>
                     <SelectItem value="GBP">GBP</SelectItem>
+                    <SelectItem value="LKR">LKR</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

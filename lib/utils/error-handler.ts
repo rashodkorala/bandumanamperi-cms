@@ -341,3 +341,44 @@ export function logError(
   // TODO: In production, send to error tracking service (e.g., Sentry)
 }
 
+/**
+ * Prepare error for user reporting
+ */
+export function prepareErrorReport(
+  error: unknown,
+  context?: Record<string, any>
+): {
+  message: string
+  stack?: string
+  type: string
+  context: Record<string, any>
+} {
+  if (error instanceof AppError) {
+    return {
+      message: error.userMessage,
+      stack: error.stack,
+      type: error.type,
+      context: {
+        technicalMessage: error.technicalMessage,
+        ...error.context,
+        ...context,
+      },
+    }
+  }
+
+  if (error instanceof Error) {
+    return {
+      message: error.message,
+      stack: error.stack,
+      type: error.name || "Error",
+      context: context || {},
+    }
+  }
+
+  return {
+    message: String(error),
+    type: "UnknownError",
+    context: context || {},
+  }
+}
+

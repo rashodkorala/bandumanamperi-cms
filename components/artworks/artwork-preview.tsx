@@ -44,6 +44,7 @@ export function ArtworkPreview({ artwork, open, onOpenChange }: ArtworkPreviewPr
     }
 
     const formatPrice = () => {
+        if (artwork.priceUponRequest) return "Price upon request"
         if (!artwork.price) return null
         const formatter = new Intl.NumberFormat("en-US", {
             style: "currency",
@@ -181,6 +182,15 @@ export function ArtworkPreview({ artwork, open, onOpenChange }: ArtworkPreviewPr
                                     <CardHeader className="pb-2">
                                         <CardDescription className="text-xs">Price</CardDescription>
                                         <CardTitle className="text-sm">{formatPrice()}</CardTitle>
+                                    </CardHeader>
+                                </Card>
+                            )}
+
+                            {artwork.collectorName && (
+                                <Card>
+                                    <CardHeader className="pb-2">
+                                        <CardDescription className="text-xs">Collector</CardDescription>
+                                        <CardTitle className="text-sm">{artwork.collectorName}</CardTitle>
                                     </CardHeader>
                                 </Card>
                             )}

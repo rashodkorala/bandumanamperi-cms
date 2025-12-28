@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"
+import { useErrorReport } from "@/hooks/use-error-report"
+import { ErrorReportDialog } from "@/components/error-report-dialog"
+import { parseStorageError } from "@/lib/utils/error-handler"
 import Image from "next/image"
 import {
   Dialog,
@@ -62,6 +65,7 @@ export function PerformanceForm({
   const router = useRouter()
   const supabase = createClient()
   const isEditing = !!editingPerformance
+  const { isOpen: isErrorReportOpen, error: reportError, reportError: showErrorReport, closeDialog } = useErrorReport()
 
   const [formData, setFormData] = useState<PerformanceInsert>({
     title: "",
@@ -287,18 +291,37 @@ export function PerformanceForm({
 
       // Upload cover image if new file is selected
       if (selectedCoverImage) {
+        // Validate file size (50MB max)
+        const maxSize = 50 * 1024 * 1024 // 50MB
+        if (selectedCoverImage.size > maxSize) {
+          throw new Error(`Cover image is too large. Maximum size is 50MB. Your file is ${(selectedCoverImage.size / 1024 / 1024).toFixed(2)}MB.`)
+        }
+
         const uniqueName = generateUniqueName(selectedCoverImage)
         const { error: uploadError } = await supabase.storage
           .from("performances")
           .upload(uniqueName, selectedCoverImage)
 
-        if (uploadError) throw uploadError
+        if (uploadError) {
+          const storageError = parseStorageError(uploadError, selectedCoverImage.name)
+          console.error("Cover image upload error:", uploadError)
+          throw storageError
+        }
         coverImagePath = uniqueName
       }
 
       // Upload new media files
       const newMediaPaths: string[] = []
+      const uploadErrors: string[] = []
+      
       for (const file of selectedMediaFiles) {
+        // Validate file size
+        const maxSize = 50 * 1024 * 1024 // 50MB
+        if (file.size > maxSize) {
+          uploadErrors.push(`${file.name}: Too large (${(file.size / 1024 / 1024).toFixed(2)}MB)`)
+          continue
+        }
+
         const uniqueName = generateUniqueName(file)
         const { error: uploadError } = await supabase.storage
           .from("performances")
@@ -306,9 +329,16 @@ export function PerformanceForm({
 
         if (uploadError) {
           console.error("Error uploading media file:", uploadError)
+          const storageError = parseStorageError(uploadError, file.name)
+          uploadErrors.push(`${file.name}: ${storageError.message}`)
           continue
         }
         newMediaPaths.push(uniqueName)
+      }
+
+      // Show warnings for failed uploads
+      if (uploadErrors.length > 0) {
+        toast.warning(`Some files failed to upload: ${uploadErrors.join(", ")}`)
       }
 
       // Combine existing and new media paths
@@ -336,10 +366,24 @@ export function PerformanceForm({
       }
 
       onClose(true)
-    } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Failed to save performance"
-      )
+    } catch (err) {
+      console.error("Error saving performance:", err)
+      
+      // Show detailed error message with report option
+      const errorMessage = err instanceof Error ? err.message : "Failed to save performance"
+      toast.error(errorMessage, {
+        duration: 6000,
+        action: {
+          label: "Report Error",
+          onClick: () => showErrorReport(err, {
+            operation: isEditing ? "updatePerformance" : "createPerformance",
+            performanceTitle: formData.title,
+            coverImageSize: selectedCoverImage ? selectedCoverImage.size : undefined,
+            mediaFilesCount: selectedMediaFiles.length,
+            errorDetails: err instanceof Error ? err.stack : undefined,
+          }),
+        },
+      })
     } finally {
       setIsLoading(false)
     }
@@ -351,8 +395,9 @@ export function PerformanceForm({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose(false)}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose(false)}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
             {isEditing ? "Edit Performance" : "Add Performance"}
@@ -929,8 +974,18 @@ export function PerformanceForm({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      {/* Error Report Dialog */}
+      {reportError && (
+        <ErrorReportDialog
+          open={isErrorReportOpen}
+          onOpenChange={closeDialog}
+          error={reportError}
+        />
+      )}
+    </>
   )
 }
 

@@ -37,6 +37,8 @@ function transformArtwork(artwork: ArtworkDB): Artwork {
     availability: artwork.availability,
     price: artwork.price,
     currency: artwork.currency,
+    priceUponRequest: artwork.price_upon_request,
+    collectorName: artwork.collector_name,
     sortOrder: artwork.sort_order,
     thumbnailPath: artwork.thumbnail_path,
     artistNotes: artwork.artist_notes,
@@ -227,6 +229,8 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
         availability: artwork.availability || "available",
         price: artwork.price || null,
         currency: artwork.currency || "USD",
+        price_upon_request: artwork.priceUponRequest || false,
+        collector_name: artwork.collectorName || null,
         sort_order: artwork.sortOrder || 0,
         thumbnail_path: artwork.thumbnailPath || null,
         artist_notes: artwork.artistNotes || null,
@@ -321,6 +325,8 @@ export async function updateArtwork(
     if (updates.availability !== undefined) updateData.availability = updates.availability
     if (updates.price !== undefined) updateData.price = updates.price
     if (updates.currency !== undefined) updateData.currency = updates.currency
+    if (updates.priceUponRequest !== undefined) updateData.price_upon_request = updates.priceUponRequest
+    if (updates.collectorName !== undefined) updateData.collector_name = updates.collectorName
     if (updates.sortOrder !== undefined) updateData.sort_order = updates.sortOrder
     if (updates.thumbnailPath !== undefined) updateData.thumbnail_path = updates.thumbnailPath
     if (updates.artistNotes !== undefined) updateData.artist_notes = updates.artistNotes

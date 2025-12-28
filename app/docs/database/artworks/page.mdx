@@ -44,7 +44,9 @@ CREATE TABLE IF NOT EXISTS artworks (
   availability TEXT DEFAULT 'available', -- available, sold, on_loan, private_collection, nfs (not for sale)
   -- Pricing (optional)
   price NUMERIC, -- Price in base currency
-  currency TEXT DEFAULT 'USD', -- Currency code (USD, EUR, etc.)
+  currency TEXT DEFAULT 'USD', -- Currency code (USD, EUR, LKR, etc.)
+  price_upon_request BOOLEAN DEFAULT false, -- When true, price is not displayed and users should inquire
+  collector_name TEXT, -- Name of the collector who owns this artwork
   -- Display and ordering
   sort_order INTEGER DEFAULT 0, -- Custom sort order for display
   thumbnail_path TEXT, -- Path to thumbnail image (if different from main media)
@@ -163,7 +165,9 @@ $$;`}
 
 - **availability**: available, sold, on_loan, private_collection, nfs
 - **price**: Artwork price
-- **currency**: Currency code (USD, EUR, GBP)
+- **currency**: Currency code (USD, EUR, GBP, LKR)
+- **price_upon_request**: Boolean flag to indicate price should be requested
+- **collector_name**: Name of the collector who owns the artwork
 
 ### Media
 
@@ -244,6 +248,7 @@ The `increment_artwork_views` function allows public users to increment view cou
 - `USD`: US Dollar
 - `EUR`: Euro
 - `GBP`: British Pound
+- `LKR`: Sri Lankan Rupee
 
 ### Units
 

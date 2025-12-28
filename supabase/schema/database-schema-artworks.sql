@@ -28,7 +28,9 @@ CREATE TABLE IF NOT EXISTS artworks (
   availability TEXT DEFAULT 'available', -- available, sold, on_loan, private_collection, nfs (not for sale)
   -- Pricing (optional)
   price NUMERIC, -- Price in base currency
-  currency TEXT DEFAULT 'USD', -- Currency code (USD, EUR, etc.)
+  currency TEXT DEFAULT 'USD', -- Currency code (USD, EUR, LKR, etc.)
+  price_upon_request BOOLEAN DEFAULT false, -- When true, price is not displayed and users should inquire
+  collector_name TEXT, -- Name of the collector who owns this artwork
   -- Display and ordering
   sort_order INTEGER DEFAULT 0, -- Custom sort order for display
   thumbnail_path TEXT, -- Path to thumbnail image (if different from main media)
