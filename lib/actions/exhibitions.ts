@@ -30,6 +30,8 @@ function transformArtwork(artwork: ArtworkDB): Artwork {
         availability: artwork.availability,
         price: artwork.price,
         currency: artwork.currency,
+        priceUponRequest: artwork.price_upon_request,
+        collectorName: artwork.collector_name,
         sortOrder: artwork.sort_order,
         thumbnailPath: artwork.thumbnail_path,
         artistNotes: artwork.artist_notes,
@@ -180,7 +182,7 @@ export async function addExhibitionToArtworks(
 
             if (fetchError) {
                 errors.push(`Artwork ${artworkId}: ${fetchError.message}`)
-                logError(fetchError, { operation: "addExhibitionToArtworks", artworkId })
+                logError(fetchError, { operation: "addExhibitionToArtworks", additionalInfo: { artworkId } })
                 continue
             }
 
@@ -205,7 +207,7 @@ export async function addExhibitionToArtworks(
 
                 if (updateError) {
                     errors.push(`Artwork ${artworkId}: ${updateError.message}`)
-                    logError(updateError, { operation: "addExhibitionToArtworks", artworkId })
+                    logError(updateError, { operation: "addExhibitionToArtworks", additionalInfo: { artworkId } })
                 } else {
                     successCount++
                 }
@@ -228,7 +230,7 @@ export async function addExhibitionToArtworks(
     } catch (error) {
         if (error instanceof AppError) throw error
 
-        logError(error, { operation: "addExhibitionToArtworks", artworkIds, exhibition })
+        logError(error, { operation: "addExhibitionToArtworks", additionalInfo: { artworkIds, exhibition } })
         throw new AppError(
             ErrorType.UPDATE_FAILED,
             "Failed to add exhibition to artworks. Please try again.",
@@ -283,7 +285,7 @@ export async function updateExhibition(
 
         if (error) {
             const appError = parseSupabaseError(error, "fetch", "Exhibition artworks")
-            logError(appError, { operation: "updateExhibition", oldExhibition, newExhibition })
+            logError(appError, { operation: "updateExhibition", additionalInfo: { oldExhibition, newExhibition } })
             throw appError
         }
 
@@ -312,7 +314,7 @@ export async function updateExhibition(
 
             if (updateError) {
                 errors.push(`Artwork ${artworkDB.id}: ${updateError.message}`)
-                logError(updateError, { operation: "updateExhibition", artworkId: artworkDB.id })
+                logError(updateError, { operation: "updateExhibition", additionalInfo: { artworkId: artworkDB.id } })
             } else {
                 successCount++
             }
@@ -332,7 +334,7 @@ export async function updateExhibition(
     } catch (error) {
         if (error instanceof AppError) throw error
 
-        logError(error, { operation: "updateExhibition", oldExhibition, newExhibition })
+        logError(error, { operation: "updateExhibition", additionalInfo: { oldExhibition, newExhibition } })
         throw new AppError(
             ErrorType.UPDATE_FAILED,
             ErrorMessages.EXHIBITION_UPDATE_FAILED,
@@ -368,7 +370,7 @@ export async function deleteExhibition(exhibition: ExhibitionHistory): Promise<v
 
         if (error) {
             const appError = parseSupabaseError(error, "fetch", "Exhibition artworks")
-            logError(appError, { operation: "deleteExhibition", exhibition })
+            logError(appError, { operation: "deleteExhibition", additionalInfo: { exhibition } })
             throw appError
         }
 
@@ -405,7 +407,7 @@ export async function deleteExhibition(exhibition: ExhibitionHistory): Promise<v
 
                 if (updateError) {
                     errors.push(`Artwork ${artworkDB.id}: ${updateError.message}`)
-                    logError(updateError, { operation: "deleteExhibition", artworkId: artworkDB.id })
+                    logError(updateError, { operation: "deleteExhibition", additionalInfo: { artworkId: artworkDB.id } })
                 } else {
                     successCount++
                 }
@@ -426,7 +428,7 @@ export async function deleteExhibition(exhibition: ExhibitionHistory): Promise<v
     } catch (error) {
         if (error instanceof AppError) throw error
 
-        logError(error, { operation: "deleteExhibition", exhibition })
+        logError(error, { operation: "deleteExhibition", additionalInfo: { exhibition } })
         throw new AppError(
             ErrorType.DELETE_FAILED,
             ErrorMessages.EXHIBITION_DELETE_FAILED,

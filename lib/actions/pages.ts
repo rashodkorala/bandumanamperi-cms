@@ -194,7 +194,7 @@ ${contentType === "markdown" ? content : `# ${pageData.title}\n\n${content}`}
 
     if (mdError) {
       const storageError = parseStorageError(mdError, `${slug}.md`)
-      logError(storageError, { operation: "uploadPageFiles", fileName: mdFilePath, fileType: "markdown" })
+      logError(storageError, { operation: "uploadPageFiles", additionalInfo: { fileName: mdFilePath, fileType: "markdown" } })
       throw storageError
     }
 
@@ -233,7 +233,7 @@ ${contentType === "markdown" ? content : `# ${pageData.title}\n\n${content}`}
 
     if (jsonError) {
       const storageError = parseStorageError(jsonError, `${slug}.json`)
-      logError(storageError, { operation: "uploadPageFiles", fileName: jsonFilePath, fileType: "json" })
+      logError(storageError, { operation: "uploadPageFiles", additionalInfo: { fileName: jsonFilePath, fileType: "json" } })
       throw storageError
     }
 
@@ -246,7 +246,7 @@ ${contentType === "markdown" ? content : `# ${pageData.title}\n\n${content}`}
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "uploadPageFiles", slug })
+    logError(error, { operation: "uploadPageFiles", additionalInfo: { slug } })
     throw new AppError(
       ErrorType.UPLOAD_FAILED,
       ErrorMessages.PAGE_STORAGE_FAILED,
@@ -376,7 +376,7 @@ export async function createPage(page: PageInsert): Promise<Page> {
       }
 
       const appError = parseSupabaseError(error, "create", "Page")
-      logError(appError, { operation: "createPage", page })
+      logError(appError, { operation: "createPage", additionalInfo: { page } })
       throw appError
     }
 
@@ -385,7 +385,7 @@ export async function createPage(page: PageInsert): Promise<Page> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "createPage", page })
+    logError(error, { operation: "createPage", additionalInfo: { page } })
     throw new AppError(
       ErrorType.CREATE_FAILED,
       ErrorMessages.PAGE_CREATE_FAILED,
@@ -540,7 +540,7 @@ export async function updatePage(page: PageUpdate): Promise<Page> {
       }
 
       const appError = parseSupabaseError(error, "update", "Page")
-      logError(appError, { operation: "updatePage", pageId: page.id, updates: page })
+      logError(appError, { operation: "updatePage", additionalInfo: { pageId: page.id, updates: page } })
       throw appError
     }
 
@@ -549,7 +549,7 @@ export async function updatePage(page: PageUpdate): Promise<Page> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updatePage", page })
+    logError(error, { operation: "updatePage", additionalInfo: { page } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.PAGE_UPDATE_FAILED,
@@ -598,7 +598,7 @@ export async function deletePage(id: string): Promise<void> {
       .limit(1)
 
     if (childError) {
-      logError(childError, { operation: "deletePage:checkChildren", pageId: id })
+      logError(childError, { operation: "deletePage:checkChildren", additionalInfo: { pageId: id } })
     }
 
     if (childPages && childPages.length > 0) {
@@ -619,7 +619,7 @@ export async function deletePage(id: string): Promise<void> {
 
       if (storageError) {
         // Log but don't fail - storage cleanup is not critical
-        logError(storageError, { operation: "deletePage:storageCleanup", files: filesToDelete })
+        logError(storageError, { operation: "deletePage:storageCleanup", additionalInfo: { files: filesToDelete } })
       }
     }
 
@@ -640,7 +640,7 @@ export async function deletePage(id: string): Promise<void> {
       }
 
       const appError = parseSupabaseError(error, "delete", "Page")
-      logError(appError, { operation: "deletePage", pageId: id })
+      logError(appError, { operation: "deletePage", additionalInfo: { pageId: id } })
       throw appError
     }
 
@@ -648,7 +648,7 @@ export async function deletePage(id: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deletePage", pageId: id })
+    logError(error, { operation: "deletePage", additionalInfo: { pageId: id } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.PAGE_DELETE_FAILED,

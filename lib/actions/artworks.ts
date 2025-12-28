@@ -105,15 +105,15 @@ export async function getArtworks(
 
     if (error) {
       const appError = parseSupabaseError(error, "fetch", "Artworks")
-      logError(appError, { operation: "getArtworks", options })
+      logError(appError, { operation: "getArtworks", additionalInfo: { options } })
       throw appError
     }
 
     return (data || []).map(transformArtwork)
   } catch (error) {
     if (error instanceof AppError) throw error
-    
-    logError(error, { operation: "getArtworks", options })
+
+    logError(error, { operation: "getArtworks", additionalInfo: { options } })
     throw new AppError(
       ErrorType.DATABASE_ERROR,
       ErrorMessages.FETCH_FAILED,
@@ -137,15 +137,15 @@ export async function getArtwork(id: string): Promise<Artwork | null> {
         return null
       }
       const appError = parseSupabaseError(error, "fetch", "Artwork")
-      logError(appError, { operation: "getArtwork", artworkId: id })
+      logError(appError, { operation: "getArtwork", additionalInfo: { artworkId: id } })
       throw appError
     }
 
     return data ? transformArtwork(data) : null
   } catch (error) {
     if (error instanceof AppError) throw error
-    
-    logError(error, { operation: "getArtwork", artworkId: id })
+
+    logError(error, { operation: "getArtwork", additionalInfo: { artworkId: id } })
     throw new AppError(
       ErrorType.DATABASE_ERROR,
       ErrorMessages.ARTWORK_NOT_FOUND,
@@ -181,7 +181,7 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
   try {
     // Verify authentication
     await requireAuth()
-    
+
     // Validate required fields
     if (!artwork.title || !artwork.title.trim()) {
       throw new AppError(
@@ -252,7 +252,7 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
       }
 
       const appError = parseSupabaseError(error, "create", "Artwork")
-      logError(appError, { operation: "createArtwork", artwork })
+      logError(appError, { operation: "createArtwork", additionalInfo: { artwork } })
       throw appError
     }
 
@@ -262,7 +262,7 @@ export async function createArtwork(artwork: ArtworkInsert): Promise<Artwork> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "createArtwork", artwork })
+    logError(error, { operation: "createArtwork", additionalInfo: { artwork } })
     throw new AppError(
       ErrorType.CREATE_FAILED,
       ErrorMessages.ARTWORK_CREATE_FAILED,
@@ -277,7 +277,7 @@ export async function updateArtwork(
   try {
     // Verify authentication
     await requireAuth()
-    
+
     // Validate artwork ID
     if (!artwork.id) {
       throw new AppError(
@@ -361,7 +361,7 @@ export async function updateArtwork(
       }
 
       const appError = parseSupabaseError(error, "update", "Artwork")
-      logError(appError, { operation: "updateArtwork", artworkId: id, updates })
+      logError(appError, { operation: "updateArtwork", additionalInfo: { artworkId: id, updates } })
       throw appError
     }
 
@@ -371,7 +371,7 @@ export async function updateArtwork(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updateArtwork", artwork })
+    logError(error, { operation: "updateArtwork", additionalInfo: { artwork } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.ARTWORK_UPDATE_FAILED,
@@ -384,7 +384,7 @@ export async function deleteArtwork(id: string): Promise<void> {
   try {
     // Verify authentication
     await requireAuth()
-    
+
     // Validate artwork ID
     if (!id || !id.trim()) {
       throw new AppError(
@@ -441,7 +441,7 @@ export async function deleteArtwork(id: string): Promise<void> {
       }
 
       const appError = parseSupabaseError(error, "delete", "Artwork")
-      logError(appError, { operation: "deleteArtwork", artworkId: id })
+      logError(appError, { operation: "deleteArtwork", additionalInfo: { artworkId: id } })
       throw appError
     }
 
@@ -450,7 +450,7 @@ export async function deleteArtwork(id: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deleteArtwork", artworkId: id })
+    logError(error, { operation: "deleteArtwork", additionalInfo: { artworkId: id } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.ARTWORK_DELETE_FAILED,
@@ -648,7 +648,7 @@ export async function updateArtworksCollection(
 ): Promise<void> {
   try {
     await requireAuth()
-    
+
     const supabase = await createClient()
 
     // Validate input
@@ -676,7 +676,7 @@ export async function updateArtworksCollection(
 
     if (error) {
       const appError = parseSupabaseError(error, "update", "Collection")
-      logError(appError, { operation: "updateArtworksCollection", artworkIds, collectionName })
+      logError(appError, { operation: "updateArtworksCollection", additionalInfo: { artworkIds, collectionName } })
       throw appError
     }
 
@@ -686,7 +686,7 @@ export async function updateArtworksCollection(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updateArtworksCollection", artworkIds, collectionName })
+    logError(error, { operation: "updateArtworksCollection", additionalInfo: { artworkIds, collectionName } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.COLLECTION_UPDATE_FAILED,
@@ -704,7 +704,7 @@ export async function renameCollection(
 ): Promise<void> {
   try {
     await requireAuth()
-    
+
     const supabase = await createClient()
 
     // Validate input
@@ -733,7 +733,7 @@ export async function renameCollection(
 
     if (checkError) {
       const appError = parseSupabaseError(checkError, "fetch", "Collection")
-      logError(appError, { operation: "renameCollection", oldName, newName })
+      logError(appError, { operation: "renameCollection", additionalInfo: { oldName, newName } })
       throw appError
     }
 
@@ -753,7 +753,7 @@ export async function renameCollection(
 
     if (error) {
       const appError = parseSupabaseError(error, "update", "Collection")
-      logError(appError, { operation: "renameCollection", oldName, newName })
+      logError(appError, { operation: "renameCollection", additionalInfo: { oldName, newName } })
       throw appError
     }
 
@@ -763,7 +763,7 @@ export async function renameCollection(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "renameCollection", oldName, newName })
+    logError(error, { operation: "renameCollection", additionalInfo: { oldName, newName } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.COLLECTION_UPDATE_FAILED,
@@ -778,7 +778,7 @@ export async function renameCollection(
 export async function deleteCollection(collectionName: string): Promise<void> {
   try {
     await requireAuth()
-    
+
     const supabase = await createClient()
 
     // Validate input
@@ -799,7 +799,7 @@ export async function deleteCollection(collectionName: string): Promise<void> {
 
     if (checkError) {
       const appError = parseSupabaseError(checkError, "fetch", "Collection")
-      logError(appError, { operation: "deleteCollection", collectionName })
+      logError(appError, { operation: "deleteCollection", additionalInfo: { collectionName } })
       throw appError
     }
 
@@ -819,7 +819,7 @@ export async function deleteCollection(collectionName: string): Promise<void> {
 
     if (error) {
       const appError = parseSupabaseError(error, "delete", "Collection")
-      logError(appError, { operation: "deleteCollection", collectionName })
+      logError(appError, { operation: "deleteCollection", additionalInfo: { collectionName } })
       throw appError
     }
 
@@ -829,7 +829,7 @@ export async function deleteCollection(collectionName: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deleteCollection", collectionName })
+    logError(error, { operation: "deleteCollection", additionalInfo: { collectionName } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.COLLECTION_DELETE_FAILED,

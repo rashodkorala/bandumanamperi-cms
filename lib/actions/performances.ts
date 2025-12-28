@@ -138,7 +138,7 @@ export async function createPerformance(
 
     if (error) {
       const appError = parseSupabaseError(error, "create", "Performance")
-      logError(appError, { operation: "createPerformance", performance })
+      logError(appError, { operation: "createPerformance", additionalInfo: { performance } })
       throw appError
     }
 
@@ -149,7 +149,7 @@ export async function createPerformance(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "createPerformance", performance })
+    logError(error, { operation: "createPerformance", additionalInfo: { performance } })
     throw new AppError(
       ErrorType.CREATE_FAILED,
       ErrorMessages.PERFORMANCE_CREATE_FAILED,
@@ -198,7 +198,7 @@ export async function updatePerformance(
       }
 
       const appError = parseSupabaseError(error, "update", "Performance")
-      logError(appError, { operation: "updatePerformance", performanceId: id, updates })
+      logError(appError, { operation: "updatePerformance", additionalInfo: { performanceId: id, updates } })
       throw appError
     }
 
@@ -212,7 +212,7 @@ export async function updatePerformance(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updatePerformance", performance })
+    logError(error, { operation: "updatePerformance", additionalInfo: { performance } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.PERFORMANCE_UPDATE_FAILED,
@@ -278,7 +278,7 @@ export async function deletePerformance(id: string): Promise<void> {
           const storageAppError = parseStorageError(storageError)
           logError(storageAppError, { 
             operation: "deletePerformance:storageCleanup", 
-            files: filesToDelete 
+            additionalInfo: { files: filesToDelete }
           })
         }
       }
@@ -298,7 +298,7 @@ export async function deletePerformance(id: string): Promise<void> {
       }
 
       const appError = parseSupabaseError(error, "delete", "Performance")
-      logError(appError, { operation: "deletePerformance", performanceId: id })
+      logError(appError, { operation: "deletePerformance", additionalInfo: { performanceId: id } })
       throw appError
     }
 
@@ -307,7 +307,7 @@ export async function deletePerformance(id: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deletePerformance", performanceId: id })
+    logError(error, { operation: "deletePerformance", additionalInfo: { performanceId: id } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.PERFORMANCE_DELETE_FAILED,
@@ -349,7 +349,7 @@ export async function deletePerformanceMedia(
 
     if (storageError) {
       const appError = parseStorageError(storageError, filePath)
-      logError(appError, { operation: "deletePerformanceMedia", performanceId, filePath })
+      logError(appError, { operation: "deletePerformanceMedia", additionalInfo: { performanceId, filePath } })
       throw appError
     }
 
@@ -361,7 +361,7 @@ export async function deletePerformanceMedia(
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deletePerformanceMedia", performanceId, filePath })
+    logError(error, { operation: "deletePerformanceMedia", additionalInfo: { performanceId, filePath } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.PERFORMANCE_MEDIA_DELETE_FAILED,

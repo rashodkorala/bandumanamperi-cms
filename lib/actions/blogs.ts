@@ -183,7 +183,7 @@ export async function createBlog(blog: BlogInsert): Promise<Blog> {
       }
 
       const appError = parseSupabaseError(error, "create", "Blog")
-      logError(appError, { operation: "createBlog", blog })
+      logError(appError, { operation: "createBlog", additionalInfo: { blog } })
       throw appError
     }
 
@@ -192,7 +192,7 @@ export async function createBlog(blog: BlogInsert): Promise<Blog> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "createBlog", blog })
+    logError(error, { operation: "createBlog", additionalInfo: { blog } })
     throw new AppError(
       ErrorType.CREATE_FAILED,
       ErrorMessages.BLOG_CREATE_FAILED,
@@ -291,7 +291,7 @@ export async function updateBlog(blog: BlogUpdate): Promise<Blog> {
       }
 
       const appError = parseSupabaseError(error, "update", "Blog")
-      logError(appError, { operation: "updateBlog", blogId: blog.id, updates: blog })
+      logError(appError, { operation: "updateBlog", additionalInfo: { blogId: blog.id, updates: blog } })
       throw appError
     }
 
@@ -300,7 +300,7 @@ export async function updateBlog(blog: BlogUpdate): Promise<Blog> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updateBlog", blog })
+    logError(error, { operation: "updateBlog", additionalInfo: { blog } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.BLOG_UPDATE_FAILED,
@@ -358,7 +358,7 @@ export async function deleteBlog(id: string): Promise<void> {
       }
 
       const appError = parseSupabaseError(error, "delete", "Blog")
-      logError(appError, { operation: "deleteBlog", blogId: id })
+      logError(appError, { operation: "deleteBlog", additionalInfo: { blogId: id } })
       throw appError
     }
 
@@ -366,7 +366,7 @@ export async function deleteBlog(id: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deleteBlog", blogId: id })
+    logError(error, { operation: "deleteBlog", additionalInfo: { blogId: id } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.BLOG_DELETE_FAILED,

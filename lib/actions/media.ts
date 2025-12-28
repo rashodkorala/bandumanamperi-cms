@@ -145,7 +145,7 @@ export async function createMedia(media: MediaInsert): Promise<MediaItem> {
 
     if (error) {
       const appError = parseSupabaseError(error, "create", "Media")
-      logError(appError, { operation: "createMedia", media })
+      logError(appError, { operation: "createMedia", additionalInfo: { media } })
       throw appError
     }
 
@@ -154,7 +154,7 @@ export async function createMedia(media: MediaInsert): Promise<MediaItem> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "createMedia", media })
+    logError(error, { operation: "createMedia", additionalInfo: { media } })
     throw new AppError(
       ErrorType.CREATE_FAILED,
       ErrorMessages.MEDIA_CREATE_FAILED,
@@ -209,7 +209,7 @@ export async function updateMedia(media: MediaUpdate): Promise<MediaItem> {
       }
 
       const appError = parseSupabaseError(error, "update", "Media")
-      logError(appError, { operation: "updateMedia", mediaId: media.id, updates: media })
+      logError(appError, { operation: "updateMedia", additionalInfo: { mediaId: media.id, updates: media } })
       throw appError
     }
 
@@ -218,7 +218,7 @@ export async function updateMedia(media: MediaUpdate): Promise<MediaItem> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "updateMedia", media })
+    logError(error, { operation: "updateMedia", additionalInfo: { media } })
     throw new AppError(
       ErrorType.UPDATE_FAILED,
       ErrorMessages.MEDIA_UPDATE_FAILED,
@@ -276,7 +276,7 @@ export async function deleteMedia(id: string): Promise<void> {
       }
 
       const appError = parseSupabaseError(error, "delete", "Media")
-      logError(appError, { operation: "deleteMedia", mediaId: id })
+      logError(appError, { operation: "deleteMedia", additionalInfo: { mediaId: id } })
       throw appError
     }
 
@@ -287,7 +287,7 @@ export async function deleteMedia(id: string): Promise<void> {
   } catch (error) {
     if (error instanceof AppError) throw error
 
-    logError(error, { operation: "deleteMedia", mediaId: id })
+    logError(error, { operation: "deleteMedia", additionalInfo: { mediaId: id } })
     throw new AppError(
       ErrorType.DELETE_FAILED,
       ErrorMessages.MEDIA_DELETE_FAILED,
