@@ -145,3 +145,4 @@ When creating new tables in the future:
 
 The error message is now much clearer thanks to the error handling we added, so you knew exactly what was wrong! 🎉
 
+

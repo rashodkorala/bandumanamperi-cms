@@ -35,3 +35,4 @@ ON performances FOR DELETE
 TO authenticated
 USING (auth.role() = 'authenticated');
 
+

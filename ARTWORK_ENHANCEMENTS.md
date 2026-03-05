@@ -164,3 +164,4 @@ Updated documentation to reflect:
 - LKR formatting follows the standard Intl.NumberFormat conventions
 - All existing artworks will have `price_upon_request = false` and `collector_name = null` by default
 
+
